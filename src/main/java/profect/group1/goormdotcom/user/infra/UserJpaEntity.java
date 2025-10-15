@@ -20,15 +20,21 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Comment("사용자")
 @Table(name = "p_user")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
+@Where(clause = "deleted_at IS NULL")
 public class UserJpaEntity {
     @Id
     @GeneratedValue
@@ -78,4 +84,8 @@ public class UserJpaEntity {
     @Enumerated(EnumType.STRING)
     @Comment("판매자 승인 상태. PENDING(대기), APPROVED(완료), REJECTED(거절). (판매자가 아닐 경우 null, 판매자의 경우 기본값=PENDING)")
     private SellerApprovalStatus sellerApprovalStatus;
+    @Column(name = "approved_at")
+    private LocalDateTime approvedAt;
+    @Column(name = "approved_by")
+    private String approvedBy;
 }
