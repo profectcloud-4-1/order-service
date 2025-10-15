@@ -4,14 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import profect.group1.goormdotcom.common.domain.BaseEntity;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
@@ -21,18 +19,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Table(name = "cart")
 @EntityListeners(AuditingEntityListener.class)
-public class CartEntity {
+public class CartEntity extends BaseEntity {
 
 	@Id
 	private UUID id;
 	private UUID customerId;
 	private int totalQuantity;
 	private int totalPrice;
-	private int totalDeliveryCost;
-
-	@CreatedDate
-	private LocalDateTime createdAt;
-
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
 }

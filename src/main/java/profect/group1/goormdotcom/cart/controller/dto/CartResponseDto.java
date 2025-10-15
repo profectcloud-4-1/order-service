@@ -8,7 +8,6 @@ public record CartResponseDto(
 		UUID customerId,
 		int totalQuantity,
 		int totalPrice,
-		int totalDeliveryCost,
 		List<CartItemResponseDto> items
 ) {
 

@@ -17,8 +17,19 @@ public class CartItem {
 	private UUID productId;
 	private int quantity;
 	private int price;
-	private int deliveryCost;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private LocalDateTime deletedAt;
+
+	public void addQuantity(final int additionalQuantity) {
+		this.quantity += additionalQuantity;
+	}
+
+	public void updateQuantity(final int quantity) {
+		if (quantity < 0) {
+			throw new IllegalArgumentException("Quantity cannot be negative");
+		}
+
+		this.quantity = quantity;
+	}
 }

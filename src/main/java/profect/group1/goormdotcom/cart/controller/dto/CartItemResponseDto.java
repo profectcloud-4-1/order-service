@@ -7,8 +7,7 @@ public record CartItemResponseDto(
 		UUID cartId,
 		UUID productId,
 		int quantity,
-		int price,
-		int deliveryCost
+		int price
 ) {
 
 }

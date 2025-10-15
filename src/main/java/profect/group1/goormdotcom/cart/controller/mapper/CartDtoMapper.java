@@ -15,7 +15,6 @@ public class CartDtoMapper {
 				cart.getCustomerId(),
 				cart.getTotalQuantity(),
 				cart.getTotalPrice(),
-				cart.getTotalDeliveryCost(),
 				cart.getItems().stream().map(CartDtoMapper::toItemDto).toList()
 		);
 	}
@@ -26,8 +25,7 @@ public class CartDtoMapper {
 				cartItem.getCartId(),
 				cartItem.getProductId(),
 				cartItem.getQuantity(),
-				cartItem.getPrice(),
-				cartItem.getDeliveryCost()
+				cartItem.getPrice()
 		);
 	}
 }

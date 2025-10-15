@@ -18,7 +18,6 @@ public class CartMapper {
 				entity.getCustomerId(),
 				entity.getTotalQuantity(),
 				entity.getTotalPrice(),
-				entity.getTotalDeliveryCost(),
 				items,
 				entity.getCreatedAt(),
 				entity.getUpdatedAt()
