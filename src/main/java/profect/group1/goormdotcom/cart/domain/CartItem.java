@@ -1,8 +1,6 @@
 package profect.group1.goormdotcom.cart.domain;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,13 +10,15 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class Cart {
+public class CartItem {
+
 	private UUID id;
-	private UUID customerId;
-	private int totalQuantity;
-	private int totalPrice;
-	private int totalDeliveryCost;
-	private List<CartItem> items = new ArrayList<>();
+	private UUID cartId;
+	private UUID productId;
+	private int quantity;
+	private int price;
+	private int deliveryCost;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private LocalDateTime deletedAt;
 }
