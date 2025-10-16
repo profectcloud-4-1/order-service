@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.List;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 public class UserService {
@@ -62,6 +63,8 @@ public class UserService {
         if (!passwordService.isMatch(password, encoded)) throw new IllegalArgumentException("Invalid credentials");
 
         User user = userOpt.get();
+        user.setLastLoginAt(LocalDateTime.now());
+        repo.update(user);
         String role = user.getRole() != null ? user.getRole().name() : null;
         return jwtTokenProvider.generateAccessToken(user.getId(), user.getEmail(), role);
     }
