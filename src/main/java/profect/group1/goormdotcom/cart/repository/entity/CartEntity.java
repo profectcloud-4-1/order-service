@@ -9,8 +9,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import profect.group1.goormdotcom.common.domain.BaseEntity;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import profect.group1.goormdotcom.common.domain.BaseEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,6 +24,8 @@ public class CartEntity extends BaseEntity {
 	@Id
 	private UUID id;
 	private UUID customerId;
-	private int totalQuantity;
-	private int totalPrice;
+
+	public CartEntity(final UUID customerId) {
+		this.customerId = customerId;
+	}
 }

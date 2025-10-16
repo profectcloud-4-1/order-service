@@ -21,6 +21,18 @@ public class CartItem {
 	private LocalDateTime updatedAt;
 	private LocalDateTime deletedAt;
 
+	public CartItem(
+			final UUID cartId,
+			final UUID productId,
+			final int quantity,
+			final int price
+	) {
+		this.cartId = cartId;
+		this.productId = productId;
+		this.quantity = quantity;
+		this.price = price;
+	}
+
 	public void addQuantity(final int additionalQuantity) {
 		this.quantity += additionalQuantity;
 	}

@@ -12,8 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-import profect.group1.goormdotcom.common.domain.BaseEntity;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import profect.group1.goormdotcom.common.domain.BaseEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,7 +21,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "cart_item")
-@SQLRestriction(value="deleted_at is NULL")
+@SQLRestriction(value = "deleted_at is NULL")
 @SQLDelete(sql = "update cart_item set deleted_at = NOW(), cartId = NULL where id = ?")
 @EntityListeners(AuditingEntityListener.class)
 public class CartItemEntity extends BaseEntity {
@@ -34,4 +34,16 @@ public class CartItemEntity extends BaseEntity {
 	private int price;
 
 	private LocalDateTime deletedAt;
+
+	public CartItemEntity(
+			final UUID cartId,
+			final UUID productId,
+			final int quantity,
+			final int price
+	) {
+		this.cartId = cartId;
+		this.productId = productId;
+		this.quantity = quantity;
+		this.price = price;
+	}
 }

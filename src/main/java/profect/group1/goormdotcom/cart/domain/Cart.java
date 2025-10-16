@@ -23,6 +23,22 @@ public class Cart {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
+	public Cart(
+			final UUID id,
+			final UUID customerId,
+			final List<CartItem> items,
+			final LocalDateTime createdAt,
+			final LocalDateTime updatedAt
+	) {
+		this.id = id;
+		this.customerId = customerId;
+		this.items = items;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+
+		calculateTotal();
+	}
+
 	public void addItem(final CartItem item) {
 		Optional<CartItem> existingItem = items.stream()
 				.filter(i -> i.getProductId().equals(item.getProductId()))
@@ -44,21 +60,40 @@ public class Cart {
 				.filter(i -> i.getId().equals(cartItemId))
 				.findFirst();
 
-		if (existingItem.isPresent()) {
-			CartItem existingCartItem = existingItem.get();
-
-			existingCartItem.updateQuantity(quantity);
-			calculateTotal();
+		if (existingItem.isEmpty()) {
+			throw new IllegalArgumentException("Item not exists");
 		}
-	}
 
-	public void deleteItem(final CartItem item) {
-		items.removeIf(i -> i.getProductId().equals(item.getProductId()));
+		CartItem existingCartItem = existingItem.get();
+
+		existingCartItem.updateQuantity(quantity);
 		calculateTotal();
 	}
 
-	public void deleteBulkItem(final List<CartItem> items) {
-		items.forEach(this::deleteItem);
+	public boolean hasProduct(final UUID productId) {
+		return items.stream()
+				.anyMatch(i -> i.getProductId().equals(productId));
+	}
+
+	public CartItem getCartItem(final UUID cartItemId) {
+		return items.stream().filter(e -> e.getId().equals(cartItemId))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Item not exists"));
+	}
+
+	public CartItem getCartItemByProductId(final UUID productId) {
+		return items.stream().filter(e -> e.getProductId().equals(productId))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Item not exists"));
+	}
+
+	public void deleteItemById(final UUID itemId) {
+		items.removeIf(i -> i.getId().equals(itemId));
+		calculateTotal();
+	}
+
+	public void deleteBulkItem(final List<UUID> items) {
+		items.forEach(this::deleteItemById);
 		calculateTotal();
 	}
 

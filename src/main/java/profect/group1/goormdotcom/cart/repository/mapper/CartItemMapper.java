@@ -16,7 +16,15 @@ public class CartItemMapper {
 				entity.getPrice(),
 				entity.getCreatedAt(),
 				entity.getUpdatedAt(),
-				entity.getDeletedAt()
+				entity.getDeletedAt());
+	}
+
+	public static CartItemEntity toEntity(final CartItem item) {
+		return new CartItemEntity(
+				item.getCartId(),
+				item.getProductId(),
+				item.getQuantity(),
+				item.getPrice()
 		);
 	}
 

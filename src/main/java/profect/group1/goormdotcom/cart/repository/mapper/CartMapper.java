@@ -16,8 +16,6 @@ public class CartMapper {
 		return new Cart(
 				entity.getId(),
 				entity.getCustomerId(),
-				entity.getTotalQuantity(),
-				entity.getTotalPrice(),
 				items,
 				entity.getCreatedAt(),
 				entity.getUpdatedAt()
