@@ -25,4 +25,9 @@ interface UserJpaRepository extends JpaRepository<UserJpaEntity, UUID> {
     @Transactional
     @Query("UPDATE UserJpaEntity u SET u.name = :name, u.email = :email, u.updatedAt = CURRENT_TIMESTAMP, u.updatedBy = :actor WHERE u.id = :userId")
     void updateNameAndEmail(@Param("userId") UUID userId, @Param("name") String name, @Param("email") String email, @Param("actor") String actor);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query("UPDATE UserJpaEntity u SET u.lastLoginAt = CURRENT_TIMESTAMP WHERE u.id = :userId")
+    void updateLastLoginAt(@Param("userId") UUID userId);
 }

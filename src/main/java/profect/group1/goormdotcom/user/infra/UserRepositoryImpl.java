@@ -144,4 +144,10 @@ public class UserRepositoryImpl implements UserRepository {
         entity.setUpdatedBy(actor);
         jpaRepo.save(entity);
     }
+
+    @Override
+    public void updateLastLoginAt(String userId) {
+        UUID uuid = UUID.fromString(userId);
+        jpaRepo.updateLastLoginAt(uuid);
+    }
 }

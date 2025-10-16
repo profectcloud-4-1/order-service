@@ -63,8 +63,7 @@ public class UserService {
         if (!passwordService.isMatch(password, encoded)) throw new IllegalArgumentException("Invalid credentials");
 
         User user = userOpt.get();
-        user.setLastLoginAt(LocalDateTime.now());
-        repo.update(user);
+        repo.updateLastLoginAt(user.getId().toString());
         String role = user.getRole() != null ? user.getRole().name() : null;
         return jwtTokenProvider.generateAccessToken(user.getId(), role);
     }

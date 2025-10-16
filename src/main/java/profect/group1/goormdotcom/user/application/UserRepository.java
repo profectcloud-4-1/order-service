@@ -14,4 +14,5 @@ public interface UserRepository {
     void softDelete(String id, String actor);
     void approveSeller(String userId, String actor, boolean approval);
     void updateNameAndEmail(String userId, String name, String email, String actor);
+    void updateLastLoginAt(String userId);
 }
