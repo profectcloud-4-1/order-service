@@ -66,7 +66,7 @@ public class UserService {
         user.setLastLoginAt(LocalDateTime.now());
         repo.update(user);
         String role = user.getRole() != null ? user.getRole().name() : null;
-        return jwtTokenProvider.generateAccessToken(user.getId(), user.getEmail(), role);
+        return jwtTokenProvider.generateAccessToken(user.getId(), role);
     }
 
     public void leave(String userId) {

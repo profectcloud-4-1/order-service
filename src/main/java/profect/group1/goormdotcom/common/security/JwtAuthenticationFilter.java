@@ -34,11 +34,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 Claims claims = jwtTokenProvider.parseClaims(token);
                 String subject = claims.getSubject();
-                String email = claims.get("email", String.class);
                 String role = claims.get("role", String.class);
 
                 List<SimpleGrantedAuthority> authorities = role != null ? List.of(new SimpleGrantedAuthority("ROLE_" + role)) : List.of();
-                Authentication auth = new UsernamePasswordAuthenticationToken(email, null, authorities);
+                Authentication auth = new UsernamePasswordAuthenticationToken(subject, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
                 // 요청에 클레임을 저장 (컨트롤러에서 사용)

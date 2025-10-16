@@ -26,12 +26,11 @@ public class JwtTokenProvider {
         this.accessTokenValidityMs = accessTokenValidityMs;
     }
 
-    public String generateAccessToken(UUID userId, String email, String role) {
+    public String generateAccessToken(UUID userId, String role) {
         Date now = new Date();
 
         var builder =Jwts.builder()
                 .subject(userId.toString())
-                .claim("email", email)
                 .claim("role", role)
                 .issuedAt(now)
                 .signWith(secretKey);
