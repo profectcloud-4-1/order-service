@@ -18,11 +18,13 @@ public enum ErrorStatus implements BaseErrorCode {
     AUTH_INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "AUTH400", "잘못된 비밀번호 형식입니다"),
     AUTH_EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "AUTH409", "이미 존재하는 이메일입니다"),
     AUTH_NOT_EXISTS(HttpStatus.NOT_FOUND, "AUTH404", "존재하지 않는 사용자입니다"),
-    
+
     COMMON_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON404", "존재하지 않는 공통 코드입니다"),
     COMMON_CODE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "COMMON409", "이미 존재하는 공통 코드입니다"),
-    COMMON_CODE_INVALID_GROUP_NAME(HttpStatus.BAD_REQUEST, "COMMON400", "허용되지 않은 그룹이름입니다");
+    COMMON_CODE_INVALID_GROUP_NAME(HttpStatus.BAD_REQUEST, "COMMON400", "허용되지 않은 그룹이름입니다"),
 
+
+    _DUPLICATE_REQUEST(HttpStatus.CONFLICT, "COMMON409", "이미 처리 중인 요청입니다.");
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
