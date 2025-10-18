@@ -8,19 +8,22 @@ import lombok.Builder;
 public class CommonCode {
 
 	private String code;
-	private String groupName;
-	private String label;
+	private String codeKey;
+	private String codeValue;
+	private String visibleLabel;
 	private String description;
 
 	public CommonCode(
-			final String code,
-			final String groupName,
-			final String label,
-			final String description
+		final String code,
+		final String codeKey,	
+		final String codeValue,
+		final String visibleLabel,
+		final String description
 	) {
 		this.code = code;
-		this.groupName = groupName;
-		this.label = label;
+		this.codeKey = codeKey;
+		this.codeValue = codeValue;
+		this.visibleLabel = visibleLabel;
 		this.description = description;
 	}
 

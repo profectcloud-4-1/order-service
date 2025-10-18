@@ -10,8 +10,9 @@ public class CommonCodeMapper {
 	public static CommonCode toDomain(final CommonCodeEntity entity) {
 		return new CommonCode(
 				entity.getCode(),
-				entity.getGroupName(),
-				entity.getLabel(),
+				entity.getCodeKey(),
+				entity.getCodeValue(),
+				entity.getVisibleLabel(),
 				entity.getDescription()
 		);
 	}
@@ -19,8 +20,9 @@ public class CommonCodeMapper {
 	public static CommonCodeEntity toEntity(final CommonCode domain) {
 		return new CommonCodeEntity(
 				domain.getCode(),
-				domain.getGroupName(),
-				domain.getLabel(),
+				domain.getCodeKey(),
+				domain.getCodeValue(),
+				domain.getVisibleLabel(),
 				domain.getDescription()
 		);
 	}
