@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import profect.group1.goormdotcom.cart.controller.dto.CartResponseDto;
@@ -74,7 +75,9 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> getCart();
+	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> getCart(
+			Authentication authentication
+	);
 
 	@Operation(
 			summary = "장바구니에 아이템 추가",
@@ -132,7 +135,8 @@ public interface CartApiDocs {
 	})
 	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> addItemToCart(
 			@Parameter(description = "장바구니에 추가할 아이템 정보", required = true)
-			@RequestBody @Valid AddCartItemRequestDto request
+			@RequestBody @Valid AddCartItemRequestDto request,
+			Authentication authentication
 	);
 
 	@Operation(
@@ -193,7 +197,8 @@ public interface CartApiDocs {
 			@Parameter(description = "수정할 장바구니 아이템 ID", required = true)
 			@PathVariable(value = "cartItemId") UUID cartItemId,
 			@Parameter(description = "수정할 수량 정보", required = true)
-			@RequestBody @Valid UpdateCartItemRequestDto request
+			@RequestBody @Valid UpdateCartItemRequestDto request,
+			Authentication authentication
 	);
 
 	@Operation(
@@ -244,7 +249,8 @@ public interface CartApiDocs {
 	})
 	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteItemFromCart(
 			@Parameter(description = "삭제할 장바구니 아이템 ID", required = true)
-			@PathVariable(value = "cartItemId") UUID cartItemId
+			@PathVariable(value = "cartItemId") UUID cartItemId,
+			Authentication authentication
 	);
 
 	@Operation(
@@ -303,7 +309,8 @@ public interface CartApiDocs {
 	})
 	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteItemFromCart(
 			@Parameter(description = "삭제할 장바구니 아이템 ID 목록", required = true)
-			@RequestBody @Valid DeleteBulkCartItemRequestDto request
+			@RequestBody @Valid DeleteBulkCartItemRequestDto request,
+			Authentication authentication
 	);
 
 	@Operation(
@@ -352,5 +359,7 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteAllItemsFromCart();
+	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteAllItemsFromCart(
+			Authentication authentication
+	);
 }
