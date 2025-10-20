@@ -10,15 +10,15 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.Setter;
+import lombok.Builder;
 import profect.group1.goormdotcom.common.domain.BaseEntity;
 
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.SQLDelete;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.hibernate.annotations.Comment;
 import jakarta.persistence.Column;
-import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -28,30 +28,29 @@ import lombok.Builder;
 
 
 @Entity
-@Table(name = "p_delivery")
-@Comment("배송")
+@Table(name = "p_delivery_return")
+@Comment("반송")
 @EntityListeners(AuditingEntityListener.class)
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
-@SQLDelete(sql = "update p_delivery set deleted_at = NOW() where id = ?")
-public class DeliveryEntity extends BaseEntity {
+@SQLDelete(sql = "update p_delivery_return set deleted_at = NOW() where id = ?")
+public class DeliveryReturnEntity extends BaseEntity {
 
 	@Id
 	private UUID id;
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
-	
-	@Column(name = "order_id", nullable = false)
-	@Comment("주문 ID (p_order.id)")
-	private UUID orderId;
+
+	@Column(name = "delivery_id", nullable = false)
+	@Comment("배송 ID (p_delivery.id)")
+	private UUID deliveryId;
 
 	@Column(name = "status", nullable = false, length = 7)
-	@Comment("배송 상태 (code_key: DELIVERY_STATUS)")
+	@Comment("반송 상태 (code_key: DELIVERY_RETURN_STATUS)")
 	private String status;
 
-	@Column(name = "tracking_num")
+	@Column(name = "tracking_number")
 	@Comment("송장 번호")
 	private String trackingNumber;
-
 	
 }
