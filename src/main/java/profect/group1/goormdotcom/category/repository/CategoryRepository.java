@@ -1,4 +1,10 @@
 package profect.group1.goormdotcom.category.repository;
 
-public interface CategoryRepository {
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import profect.group1.goormdotcom.category.repository.entity.CategoryEntity;
+
+public interface CategoryRepository extends JpaRepository<CategoryEntity, UUID>{
 }

@@ -1,8 +1,6 @@
 package profect.group1.goormdotcom.product.domain;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import lombok.AccessLevel;
@@ -13,17 +11,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Product {
+public class ProductImage {
     
     private UUID id;
-    private UUID brandId;
-    private UUID categoryId;
-    private String name;
-    private String description;
-    private int price;
+    private UUID productId;
+    private String imageObject;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
-    private List<ProductImage> images = new ArrayList<>();
-    
+    private LocalDateTime deletedAt;   
 }

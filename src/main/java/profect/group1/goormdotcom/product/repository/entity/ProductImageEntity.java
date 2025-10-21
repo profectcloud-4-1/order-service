@@ -22,36 +22,25 @@ import profect.group1.goormdotcom.common.domain.BaseEntity;
 @AllArgsConstructor
 
 @Entity
-@Table(name = "p_product")
+@Table(name = "p_product_image")
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
 @SQLDelete(sql = "update product set deleted_at = NOW() where id = ?")
 @EntityListeners(AuditingEntityListener.class)
-public class ProductEntity extends BaseEntity{
+public class ProductImageEntity extends BaseEntity{
     @Id
     private UUID id;
-    private UUID brandId;
-    private UUID categoryId;
-    private String name;
-    private int price;
-    private String description;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private UUID productId;
+    private String imageObject;
+    private LocalDateTime createAt;
     private LocalDateTime deletedAt;
 
-
-    public ProductEntity(
+    public ProductImageEntity(
         final UUID id,
-        final UUID brandId,
-        final UUID categoryId,
-        final String name,
-        final int price,
-        final String description
+        final UUID productId,
+        final String imageObject
     ) {
         this.id = id;
-        this.brandId = brandId;
-        this.categoryId = categoryId;
-        this.name = name;
-        this.price = price;
-        this.description = description;
+        this.productId = productId;
+        this.imageObject = imageObject;
     }
 }
