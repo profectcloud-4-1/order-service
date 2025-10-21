@@ -1,5 +1,6 @@
 package profect.group1.goormdotcom.product.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import profect.group1.goormdotcom.product.domain.Product;
-import profect.group1.goormdotcom.product.domain.ProductImage;
 import profect.group1.goormdotcom.product.repository.ProductImageRepository;
 import profect.group1.goormdotcom.product.repository.ProductRepository;
 import profect.group1.goormdotcom.product.repository.entity.ProductEntity;
@@ -41,11 +41,13 @@ public class ProductService {
             price, 
             description
         );
+        
         productRepository.save(productEntity);
             
         return productId;
     }
 
+    // 이미지 Update Method는 따로 구현
     public Product updateProduct(
         final UUID productId,
         final UUID categoryId,
@@ -62,47 +64,19 @@ public class ProductService {
 
         productRepository.save(newProductEntity);
         
-        return ProductMapper.toDomain(newProductEntity, null);
-    }
-
-    public List<UUID> uploadProductImages(
-        final UUID productId,
-        final int imageCount
-    ) {
-        // 이미지 5장까지만 등록.
-        long activeCount = productImageRepository.countByProductId(productId);
-        if (activeCount >= 5 - imageCount) {
-            throw new IllegalStateException("이미지는 최대 5장까지 업로드 가능합니다");
-        }
-        
-        // TODO: Implement presignedURL
-        // 
-        
-        List<ProductImageEntity> imageEntities = new ArrayList<>();
-        for (int i = 0; i < imageCount; ++i) {
-            final UUID imageId = UUID.randomUUID();
-            final String imageObject = "product/" + productId + "/" + imageId;
-            imageEntities.add(new ProductImageEntity(imageId, productId, imageObject));
-        }
-
-        productImageRepository.saveAll(imageEntities);
-
-        return imageEntities.stream().map(ProductImageEntity::getId).toList();
-    }
-
-    public List<UUID> deleteProductImages(
-        final UUID productId,
-        final List<UUID> imageIds,
-        final int imageCount
-    ) {
-        productImageRepository.deleteAllById(imageIds);
-        return imageIds;
+        return ProductMapper.toDomain(newProductEntity, productImageRepository.findByProductId(productId));
     }
 
     public void deleteProduct(
         final UUID productId
     ) {
         productRepository.deleteById(productId);
+    }
+
+    public void deleteProducts(
+        final List<UUID> productIds
+    ) {
+        productRepository.deleteAllById(productIds);
     }
 
     public Product getProduct(
@@ -115,4 +89,29 @@ public class ProductService {
         return ProductMapper.toDomain(productEntity, imageEntities);
     }
 
+    public void createProductImages(List<UUID> imageIds, UUID productId) {
+        List<ProductImageEntity> productImageEntities = imageIds.stream()
+            .map(id -> new ProductImageEntity(id, productId)).toList();
+        
+        productImageRepository.saveAll(productImageEntities);
+    }
+
+    public UUID uploadProductImages() { 
+        UUID imageId = UUID.randomUUID();
+
+        // TODO: Implement presignedURL
+        // 
+    
+
+        return imageId;
+    }
+
+    public List<UUID> deleteProductImages(
+        final UUID productId,
+        final List<UUID> imageIds,
+        final int imageCount
+    ) {
+        productImageRepository.deleteAllById(imageIds);
+        return imageIds;
+    }
 }

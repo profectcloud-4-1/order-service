@@ -15,7 +15,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import profect.group1.goormdotcom.common.domain.BaseEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,23 +23,20 @@ import profect.group1.goormdotcom.common.domain.BaseEntity;
 @Entity
 @Table(name = "p_product_image")
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
-@SQLDelete(sql = "update product set deleted_at = NOW() where id = ?")
+@SQLDelete(sql = "update p_product_image set deleted_at = NOW() where id = ?")
 @EntityListeners(AuditingEntityListener.class)
-public class ProductImageEntity extends BaseEntity{
+public class ProductImageEntity{
     @Id
     private UUID id;
     private UUID productId;
     private String imageObject;
-    private LocalDateTime createAt;
     private LocalDateTime deletedAt;
 
     public ProductImageEntity(
         final UUID id,
-        final UUID productId,
-        final String imageObject
+        final UUID productId
     ) {
         this.id = id;
         this.productId = productId;
-        this.imageObject = imageObject;
     }
 }

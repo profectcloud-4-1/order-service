@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.SQLDelete;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Entity;
@@ -24,7 +25,7 @@ import profect.group1.goormdotcom.common.domain.BaseEntity;
 @Entity
 @Table(name = "p_product")
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
-@SQLDelete(sql = "update product set deleted_at = NOW() where id = ?")
+@SQLDelete(sql = "update p_product set deleted_at = NOW() where id = ?")
 @EntityListeners(AuditingEntityListener.class)
 public class ProductEntity extends BaseEntity{
     @Id
@@ -34,8 +35,9 @@ public class ProductEntity extends BaseEntity{
     private String name;
     private int price;
     private String description;
+    
+    @CreatedDate
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
 

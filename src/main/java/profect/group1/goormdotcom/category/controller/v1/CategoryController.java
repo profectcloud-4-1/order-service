@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RestController
 @RequestMapping("/api/v1/category")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class CategoryController {
+public class CategoryController implements CategoryApiDocs{
     private final CategoryService categoryService;
 
     @GetMapping

@@ -14,8 +14,8 @@ import profect.group1.goormdotcom.product.controller.dto.ProductResponseDto;
 import profect.group1.goormdotcom.product.controller.mapper.ProductDtoMapper;
 import profect.group1.goormdotcom.product.domain.Product;
 import profect.group1.goormdotcom.product.service.ProductService;
-import profect.group1.goormdotcom.user.presentation.auth.LoginUser;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RestController
 @RequestMapping("/api/v1/product")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductController {
+public class ProductController implements ProductApiDocs {
     private final ProductService productService;
 
     @PostMapping("/register")
@@ -38,9 +38,21 @@ public class ProductController {
     public ApiResponse<UUID> registerProduct(
         @RequestBody @Valid ProductRequestDto request
     ) {
+        // 상품 ID
         UUID productId = productService.createProduct(
-            request.brandId(), request.categoryId(), request.name(), request.price(), request.description()
+            request.brandId(), 
+            request.categoryId(), 
+            request.name(), 
+            request.price(), 
+            request.description()
         ); 
+        
+        // TODO: Register stockQuantity
+
+
+        // 이미지 저장
+        productService.createProductImages(request.imageIds(), productId);
+        
         return ApiResponse.of(SuccessStatus._OK, productId);
     }
     
@@ -65,6 +77,8 @@ public class ProductController {
             request.price(),
             request.description()
         );
+
+        // TODO: Update stockQuantity
         
         return ApiResponse.of(SuccessStatus._OK, ProductDtoMapper.toProductResponseDto(product));
     }
@@ -78,4 +92,13 @@ public class ProductController {
         return ApiResponse.of(SuccessStatus._OK, productId);
     }
 
+    @DeleteMapping("/bulk")
+    @PreAuthorize("hasRole('SELLER')")
+    public ApiResponse<List<UUID>> deleteProducts(
+        @RequestBody List<UUID> productIds
+    )  {
+        productService.deleteProducts(productIds);
+        return ApiResponse.of(SuccessStatus._OK, productIds);
+    }
+    
 }

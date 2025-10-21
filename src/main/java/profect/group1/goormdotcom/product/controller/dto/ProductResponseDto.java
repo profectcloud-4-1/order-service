@@ -9,7 +9,7 @@ public record ProductResponseDto(
     UUID categoryId,
     String description,
     int price,
-    List<String> images_url
+    List<String> imageUrls
 ) {
     
 }

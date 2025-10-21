@@ -29,7 +29,6 @@ public class ProductMapper {
             entity.getId(),
             entity.getProductId(),
             entity.getImageObject(),
-            entity.getCreateAt(),
             entity.getDeletedAt()
         );
     }

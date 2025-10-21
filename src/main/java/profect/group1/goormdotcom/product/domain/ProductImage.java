@@ -16,6 +16,9 @@ public class ProductImage {
     private UUID id;
     private UUID productId;
     private String imageObject;
-    private LocalDateTime createdAt;
     private LocalDateTime deletedAt;   
+
+    public void updateProductId(UUID productId) {
+        this.productId = productId;
+    }
 }

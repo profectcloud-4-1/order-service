@@ -1,5 +1,6 @@
 package profect.group1.goormdotcom.product.controller.dto;
 
+import java.util.List;
 import java.util.UUID;
 
 public record ProductRequestDto(
@@ -7,6 +8,8 @@ public record ProductRequestDto(
     UUID brandId,
     UUID categoryId,
     String description,
-    int price
+    int price,
+    int stockQuantity,
+    List<UUID> imageIds
 ) {    
 }
