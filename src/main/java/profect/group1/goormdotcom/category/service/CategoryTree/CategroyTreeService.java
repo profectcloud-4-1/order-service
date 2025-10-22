@@ -21,30 +21,41 @@ public class CategroyTreeService {
     private static final UUID ROOT_ID =
         UUID.fromString("00000000-0000-0000-0000-000000000000");
 
-
-    public CategoryTree getCategoryTree() {
-        List<CategoryEntity> entities = categoryRepository.findAll();
+    private CategoryTree buildCategoryTree(CategoryEntity parent, List<CategoryEntity> entities) {
 
         // Build tree
         Map<UUID, CategoryNode> map = new LinkedHashMap<>(entities.size());
         for (CategoryEntity e : entities) {
             map.put(e.getId(), CategoryNode.of(e.getId(), e.getParentId(),e.getName()));
         }
-        
-        map.computeIfAbsent(ROOT_ID, id -> CategoryNode.of(ROOT_ID, null, "ROOT"));
 
-        CategoryNode root = map.get(ROOT_ID);
-        if (root == null) throw new IllegalStateException("super_root not found!");
+        map.computeIfAbsent(parent.getId(), id -> CategoryNode.of(parent.getId(), null, parent.getName()));
 
-        for (CategoryNode n : map.values()) {
-            if (n.id().equals(ROOT_ID)) continue;
-             
+        CategoryNode root = map.get(parent.getId());
+        if (root == null) throw new IllegalStateException("Parent not found!");
+
+        for (CategoryNode n : map.values()) {     
+            if (n.id().equals(parent.getId())) continue;        
+
             CategoryNode p = map.get(n.parentId());
             p.children().add(n);
         } 
 
         CategoryTree categoryTree = new CategoryTree(root, map);
         return categoryTree;
+    }
+
+    public CategoryTree getAllCategoryTree() {
+        CategoryEntity parent = new CategoryEntity(ROOT_ID, null, "ROOT");
+        List<CategoryEntity> entities = categoryRepository.findAll();
+        return buildCategoryTree(parent, entities);
+    }
+
+    public CategoryTree getChildCategoryTree(UUID parentId) {
+        CategoryEntity parent = categoryRepository.findById(parentId)
+            .orElseThrow(() ->  new IllegalArgumentException("Category not found"));
+        List<CategoryEntity> entities = categoryRepository.findAllByParentId(parent.getId());
+        return buildCategoryTree(parent, entities);
     }
 
 }

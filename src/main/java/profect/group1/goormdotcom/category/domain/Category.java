@@ -19,4 +19,13 @@ public class Category {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
+    public Category(
+        UUID id,
+        UUID parentId,
+        String name
+    ) {
+        this.id = id;
+        this.parentId = parentId;
+        this.name = name;
+    }
 }
