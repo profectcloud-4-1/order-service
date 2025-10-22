@@ -5,7 +5,6 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,16 +21,16 @@ import profect.group1.goormdotcom.cart.controller.dto.request.DeleteBulkCartItem
 import profect.group1.goormdotcom.cart.controller.dto.request.UpdateCartItemRequestDto;
 import profect.group1.goormdotcom.cart.controller.mapper.CartDtoMapper;
 import profect.group1.goormdotcom.cart.domain.Cart;
-import profect.group1.goormdotcom.cart.service.CartService;
+import profect.group1.goormdotcom.cart.service.CartServiceImpl;
 import profect.group1.goormdotcom.user.presentation.auth.LoginUser;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/cart")
+@RequestMapping("/api/v1/carts")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class CartController implements CartApiDocs {
 
-	private final CartService cartService;
+	private final CartServiceImpl cartService;
 
 	@GetMapping
 	public ApiResponse<CartResponseDto> getCart(
@@ -40,6 +39,15 @@ public class CartController implements CartApiDocs {
 		Cart cart = cartService.getCart(userId);
 
 		return ApiResponse.of(SuccessStatus._OK, CartDtoMapper.toCartDto(cart));
+	}
+
+	@PostMapping
+	public ApiResponse<UUID> createCart(
+			@LoginUser UUID userId
+	) {
+		UUID cartId = cartService.createCart(userId);
+
+		return ApiResponse.of(SuccessStatus._CREATED, cartId);
 	}
 
 	@PostMapping("/items")
@@ -72,11 +80,11 @@ public class CartController implements CartApiDocs {
 	}
 
 	@PutMapping("/items/bulk-delete")
-	public ApiResponse<CartResponseDto> deleteItemFromCart(
+	public ApiResponse<CartResponseDto> deleteBulkItemFromCart(
 			@RequestBody @Valid DeleteBulkCartItemRequestDto request,
 			@LoginUser UUID userId
 	) {
-		Cart cart = cartService.deleteBulkItem(userId, request.getCartItemIds());
+		Cart cart = cartService.removeBulkItem(userId, request.getCartItemIds());
 
 		return ApiResponse.of(SuccessStatus._OK, CartDtoMapper.toCartDto(cart));
 	}
@@ -86,7 +94,7 @@ public class CartController implements CartApiDocs {
 			@PathVariable(value = "cartItemId") UUID cartItemId,
 			@LoginUser UUID userId
 	) {
-		Cart cart = cartService.deleteCartItem(userId, cartItemId);
+		Cart cart = cartService.removeCartItem(userId, cartItemId);
 
 		return ApiResponse.of(SuccessStatus._OK, CartDtoMapper.toCartDto(cart));
 	}

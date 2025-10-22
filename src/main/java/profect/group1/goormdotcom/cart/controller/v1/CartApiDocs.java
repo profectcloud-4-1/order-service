@@ -80,6 +80,50 @@ public interface CartApiDocs {
 	);
 
 	@Operation(
+			summary = "장바구니 생성",
+			description = "회원가입 한 사용자의 장바구니를 생성한다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					responseCode = "201",
+					description = "장바구니 생성 성공",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiResponse.class),
+							examples = @ExampleObject(
+									name = "성공 예시",
+									value = """
+											{
+												"code": "201",
+												"message": "장바구니 생성에 성공하였습니다.",
+												"result": "123e4567-e89b-12d3-a456-426614174000"
+											}
+											"""
+							)
+					)
+			),
+			@ApiResponse(
+					responseCode = "400",
+					description = "잘못된 요청 데이터",
+					content = @Content(
+							mediaType = "application/json",
+							examples = @ExampleObject(
+									name = "실패 예시",
+									value = """
+											{
+											    "code": "400",
+											    "message": "이미 장바구니가 있습니다."
+											}
+											"""
+							)
+					)
+			)
+	})
+	profect.group1.goormdotcom.apiPayload.ApiResponse<UUID> createCart(
+			@LoginUser UUID userId
+	);
+
+	@Operation(
 			summary = "장바구니에 아이템 추가",
 			description = "장바구니에 새로운 아이템을 추가하거나 기존 아이템의 수량을 증가시킵니다."
 	)
@@ -307,7 +351,7 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteItemFromCart(
+	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteBulkItemFromCart(
 			@Parameter(description = "삭제할 장바구니 아이템 ID 목록", required = true)
 			@RequestBody @Valid DeleteBulkCartItemRequestDto request,
 			@LoginUser UUID userId
