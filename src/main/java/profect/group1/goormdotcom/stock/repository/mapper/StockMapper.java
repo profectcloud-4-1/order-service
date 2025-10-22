@@ -14,4 +14,12 @@ public class StockMapper {
             stockEntity.getDeletedAt()
         );
     }
+
+    public static StockEntity toEntity(Stock stock) {
+        return new StockEntity(
+            stock.getId(), 
+            stock.getProductId(), 
+            stock.getStockQuantity()
+        );
+    }
 }

@@ -18,7 +18,6 @@ import profect.group1.goormdotcom.common.domain.BaseEntity;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
 @Entity
 @Table(name = "p_stock")
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
@@ -30,4 +29,19 @@ public class StockEntity extends BaseEntity{
     private UUID productId;
     private int stockQuantity;
     private LocalDateTime deletedAt;
+
+    public StockEntity(
+        UUID id,
+        UUID productId,
+        int stockQuantity
+    ) {
+        this.id = id;
+        this.productId = productId;
+        this.stockQuantity = stockQuantity;
+    }
+
+    public void updateQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
 }

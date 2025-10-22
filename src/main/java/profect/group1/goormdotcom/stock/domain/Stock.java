@@ -19,4 +19,14 @@ public class Stock {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
+
+    public Stock(
+        UUID id,
+        UUID productId,
+        int stockQuantity
+    ) {
+        this.id = id;
+        this.productId = productId;
+        this.stockQuantity = stockQuantity;
+    }
 }
