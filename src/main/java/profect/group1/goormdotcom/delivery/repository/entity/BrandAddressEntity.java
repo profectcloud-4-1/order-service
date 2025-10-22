@@ -1,7 +1,6 @@
 package profect.group1.goormdotcom.delivery.repository.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;
@@ -11,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import profect.group1.goormdotcom.common.domain.BaseEntity;
 
 import org.hibernate.annotations.Filter;
@@ -33,7 +31,6 @@ import org.hibernate.annotations.UuidGenerator;
 @Entity
 @Table(name = "p_brand_address")
 @Comment("브랜드 배송지")
-@EntityListeners(AuditingEntityListener.class)
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
 @SQLDelete(sql = "update p_brand_address set deleted_at = NOW() where id = ?")
 public class BrandAddressEntity extends BaseEntity {

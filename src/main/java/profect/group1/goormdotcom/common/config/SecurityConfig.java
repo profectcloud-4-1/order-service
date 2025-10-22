@@ -43,7 +43,8 @@ public class SecurityConfig {
                         // 회원가입, 로그인 허용
                         .requestMatchers("/users/register").permitAll()
                         .requestMatchers("/users/login").permitAll()
-                        .requestMatchers("/delivery/**").permitAll()
+                        .requestMatchers("/delivery/address/mine/**").hasRole("CUSTOMER")
+                        .requestMatchers("/delivery/address/brand/**").hasRole("MASTER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

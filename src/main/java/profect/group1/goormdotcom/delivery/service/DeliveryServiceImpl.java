@@ -47,20 +47,17 @@ public class DeliveryServiceImpl implements DeliveryService {
 		return DeliveryMapper.toDomain(found.get()).canReturn();
 	}
 
-	@Transactional
 	public Delivery createDelivery(UUID orderId, UUID brandId, UUID customerAddressId) {
 		Delivery delivery = this.deliveryManager.createDelivery(orderId, brandId, customerAddressId);
 
 		return delivery;
 	}
 
-	@Transactional
 	public boolean cancel(UUID deliveryId) {
 		this.deliveryManager.cancel(deliveryId);
 		return true;
 	}
 
-	@Transactional
 	public DeliveryReturn returnDelivery(UUID deliveryId) {
 		DeliveryReturn deliveryReturn = this.deliveryManager.returnDelivery(deliveryId);
 		return deliveryReturn;
