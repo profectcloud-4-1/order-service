@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +23,7 @@ import profect.group1.goormdotcom.common.domain.BaseEntity;
 @Entity
 @Table(name = "p_stock")
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
-@SQLDelete(sql = "update p_stock set deleted_at = NOw() WHERE id = ?")
+@SQLDelete(sql = "update p_stock set deleted_at = NOW() WHERE id = ?")
 public class StockEntity extends BaseEntity{
     
     @Id
@@ -47,16 +48,17 @@ public class StockEntity extends BaseEntity{
         this.stockQuantity = stockQuantity;
     }
 
-    public void decreaseStock(int requestedQuantity) {
+    public void decreaseQuantity(int requestedQuantity) {
         if (this.stockQuantity - requestedQuantity < 0) {
-            throw new IllegalArgumentException("재고가 요청한 수량보다 부족합니다.");
+            throw new IllegalArgumentException("현재 재고가 요청한 수량보다 부족합니다.");
         }
 
         this.stockQuantity -= requestedQuantity;
     }
 
-    public void increaseStock(int requestedQuantity) {
+    public void increaseQuantity(int requestedQuantity) {
         this.stockQuantity += requestedQuantity;
     }
+
 
 }

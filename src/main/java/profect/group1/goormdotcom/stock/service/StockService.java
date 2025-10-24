@@ -1,5 +1,8 @@
 package profect.group1.goormdotcom.stock.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -59,25 +62,36 @@ public class StockService {
     }
 
     @Transactional
-    public Boolean decreaseStock(UUID productId, int requestedQuantity) {
-        StockEntity entity = getStockEntity(productId);
-        entity.decreaseStock(requestedQuantity);
-
-        // TODO: 동시성 제어 구현 (낙관적 락 및 재시도 구현)
-        try {
-            stockRepository.save(entity);
-            return true;
-        } catch (Exception e) {
-            return false;
+    public Boolean decreaseStocks(Map<UUID, Integer> requestedQuantityMap) {
+        StockEntity entity;
+        for (UUID productId: requestedQuantityMap.keySet()) {
+            entity = getStockEntity(productId);
+            entity.decreaseQuantity(requestedQuantityMap.get(productId));
+            
+            // TODO: 동시성 제어 구현 (낙관적 락 및 재확인 구현)
+            try {
+                stockRepository.save(entity);
+            } catch (Exception e) {
+                return false;
+            }
         }
-        
+        return true;
     }
 
     @Transactional
-    public Boolean increaseStock(UUID productId, int requestedQuantity) {
-        StockEntity entity = getStockEntity(productId);
-        entity.increaseStock(requestedQuantity);
-        stockRepository.save(entity);
+    public Boolean increaseStocks(Map<UUID, Integer> requestedQuantityMap) {
+        StockEntity entity;
+        for (UUID productId: requestedQuantityMap.keySet()) {
+            entity = getStockEntity(productId);
+            entity.increaseQuantity(requestedQuantityMap.get(productId));
+            
+            // TODO: 동시성 제어 구현 (낙관적 락 및 재확인 구현)
+            try {
+                stockRepository.save(entity);
+            } catch (Exception e) {
+                return false;
+            }
+        }
         return true;
     }
 }
