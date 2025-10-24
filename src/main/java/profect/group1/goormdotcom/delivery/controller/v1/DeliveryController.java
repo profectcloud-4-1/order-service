@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import io.jsonwebtoken.Claims;
 import profect.group1.goormdotcom.delivery.controller.dto.request.CreateDeliveryRequestDto;
 import profect.group1.goormdotcom.delivery.controller.dto.request.CancelDeliveryRequestDto;
+import profect.group1.goormdotcom.delivery.controller.dto.response.DeliveryResponseDto;
 
 @RestController
 @RequestMapping("/api/v1/delivery")
@@ -34,6 +35,14 @@ import profect.group1.goormdotcom.delivery.controller.dto.request.CancelDelivery
 public class DeliveryController implements DeliveryApiDocs {
 
 	private final DeliveryService service;
+
+	@GetMapping("/by-order")
+	public ApiResponse<DeliveryResponseDto> getDeliveryByOrder(@RequestParam UUID orderId) {
+		Delivery delivery = this.service.getDeliveryByOrderId(orderId);
+		DeliveryResponseDto response = new DeliveryResponseDto(delivery);
+		return ApiResponse.onSuccess(response);
+	}
+
 
 	@GetMapping("/check/cancellable")
 	public ApiResponse<Integer> checkCancellable(@RequestParam UUID orderId) {

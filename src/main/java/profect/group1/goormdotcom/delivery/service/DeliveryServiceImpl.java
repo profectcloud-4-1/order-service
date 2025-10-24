@@ -93,4 +93,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         return this.deliveryManager.updateGoormAddress(body.getAddress(), body.getAddressDetail(), body.getZipcode(), body.getPhone(), body.getName());
     }
 
+	public Delivery getDeliveryByOrderId(UUID orderId) {
+		return this.deliveryManager.getDeliveryByOrderId(orderId);
+	}
+
 }

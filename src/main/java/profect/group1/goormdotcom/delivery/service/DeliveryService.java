@@ -44,8 +44,10 @@ public interface DeliveryService {
 	public DeliveryAddress updateCustomerAddress(UUID customerId, UUID addressId, CreateAddressRequestDto body);
 	public boolean deleteCustomerAddress(UUID customerId, UUID addressId);
 
-    // Brand address (MASTER)
+    // Goorm address (MASTER)
     public DeliveryAddress getGoormAddress();
     public DeliveryAddress createGoormAddress(CreateAddressRequestDto body);
 	public DeliveryAddress updateGoormAddress(CreateAddressRequestDto body);
+
+	public Delivery getDeliveryByOrderId(UUID orderId);
 }

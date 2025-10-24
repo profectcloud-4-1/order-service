@@ -38,9 +38,9 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// FIXME: h2->psql로 전환 시 주석해제
-	// runtimeOnly 'org.postgresql:postgresql:42.7.5'
+	runtimeOnly 'org.postgresql:postgresql:42.7.5'
 
-	runtimeOnly 'com.h2database:h2'
+	// runtimeOnly 'com.h2database:h2'
 
 	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'

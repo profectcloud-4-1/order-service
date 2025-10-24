@@ -37,7 +37,7 @@ import profect.group1.goormdotcom.delivery.repository.entity.CustomerAddressEnti
 import profect.group1.goormdotcom.delivery.repository.GoormAddressRepository;
 import profect.group1.goormdotcom.delivery.repository.CustomerAddressRepository;
 import profect.group1.goormdotcom.delivery.repository.mapper.DeliveryAddressMapper;
-
+import profect.group1.goormdotcom.delivery.repository.mapper.DeliveryStepHistoryMapper;
 import profect.group1.goormdotcom.delivery.domain.enums.DeliveryReturnStatus;
 import profect.group1.goormdotcom.delivery.domain.enums.DeliveryReturnStepType;
 import profect.group1.goormdotcom.delivery.domain.DeliveryReturn;
@@ -59,11 +59,35 @@ public class DeliveryManager {
 	private final DeliveryReturnStepHistoryRepository returnStepHistoryRepo;
     private final DeliveryAddressMapper deliveryAddressMapper;
     private final DeliveryReturnAddressMapper deliveryReturnAddressMapper;
+    private final DeliveryStepHistoryMapper deliveryStepHistoryMapper;
     private final PlatformTransactionManager transactionManager;
 
     public List<DeliveryAddress> getAddressesByCustomerId(UUID customerId) {
         List<CustomerAddressEntity> entities = this.customerAddressRepo.findAllByCustomerId(customerId);
         return entities.stream().map(this.deliveryAddressMapper::toDomainFromCustomerAddress).toList();
+    }
+
+    public Delivery getDeliveryByOrderId(UUID orderId) {
+        DeliveryEntity entity = this.repo.findByOrderId(orderId).orElseThrow(() -> new IllegalArgumentException("Delivery not found"));
+
+        DeliveryAddressEntity addressEntity = this.addressRepo.findByDeliveryId(entity.getId()).orElseThrow(() -> new IllegalArgumentException("Delivery not found"));
+        DeliveryAddress senderAddress = this.deliveryAddressMapper.toDomainOfSender(addressEntity);
+        DeliveryAddress receiverAddress = this.deliveryAddressMapper.toDomainOfReceiver(addressEntity);
+
+        List<DeliveryStepHistory> stepHistories = this.stepHistoryRepo.findAllByDeliveryIdOrderByCreatedAtDesc(entity.getId()).stream().map(this.deliveryStepHistoryMapper::toDomain).toList();
+
+        Delivery delivery = Delivery.builder()
+            .id(entity.getId())
+            .orderId(entity.getOrderId())
+            .status(entity.getStatus())
+            .trackingNumber(entity.getTrackingNumber())
+            .createdAt(entity.getCreatedAt())
+            .updatedAt(entity.getUpdatedAt())
+            .senderAddress(senderAddress)
+            .receiverAddress(receiverAddress)
+            .deliveryStepHistories(stepHistories)
+            .build();
+        return delivery;
     }
 
 	@Transactional
