@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.category.service.CategoryTree;
+package profect.group1.goormdotcom.category.domain;
 
 import java.util.ArrayList;
 import java.util.List;

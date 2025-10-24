@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import profect.group1.goormdotcom.category.controller.dto.CategoryResponseDto;
 import profect.group1.goormdotcom.category.controller.dto.CategoryTreeResponseDto;
 import profect.group1.goormdotcom.category.domain.Category;
-import profect.group1.goormdotcom.category.service.CategoryTree.CategoryNode;
+import profect.group1.goormdotcom.category.domain.CategoryNode;
 
 
 @Component

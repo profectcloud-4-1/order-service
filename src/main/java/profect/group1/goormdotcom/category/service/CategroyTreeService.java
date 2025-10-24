@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.category.service.CategoryTree;
+package profect.group1.goormdotcom.category.service;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import profect.group1.goormdotcom.category.domain.CategoryNode;
+import profect.group1.goormdotcom.category.domain.CategoryTree;
 import profect.group1.goormdotcom.category.repository.CategoryRepository;
 import profect.group1.goormdotcom.category.repository.entity.CategoryEntity;
 

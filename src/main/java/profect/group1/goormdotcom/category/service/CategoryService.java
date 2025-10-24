@@ -7,10 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import profect.group1.goormdotcom.category.domain.Category;
+import profect.group1.goormdotcom.category.domain.CategoryTree;
 import profect.group1.goormdotcom.category.repository.CategoryRepository;
 import profect.group1.goormdotcom.category.repository.entity.CategoryEntity;
-import profect.group1.goormdotcom.category.service.CategoryTree.CategoryTree;
-import profect.group1.goormdotcom.category.service.CategoryTree.CategroyTreeService;
 
 @Service
 @Transactional

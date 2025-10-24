@@ -3,7 +3,7 @@ package profect.group1.goormdotcom.category.controller.dto;
 import java.util.List;
 import java.util.UUID;
 
-import profect.group1.goormdotcom.category.service.CategoryTree.CategoryNode;
+import profect.group1.goormdotcom.category.domain.CategoryNode;
 
 public record CategoryTreeResponseDto(
     UUID id,

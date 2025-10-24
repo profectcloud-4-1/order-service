@@ -13,12 +13,13 @@ import profect.group1.goormdotcom.category.controller.dto.CategoryResponseDto;
 import profect.group1.goormdotcom.category.controller.dto.CategoryTreeResponseDto;
 import profect.group1.goormdotcom.category.controller.mapper.CategoryDtoMapper;
 import profect.group1.goormdotcom.category.domain.Category;
+import profect.group1.goormdotcom.category.domain.CategoryTree;
 import profect.group1.goormdotcom.category.service.CategoryService;
-import profect.group1.goormdotcom.category.service.CategoryTree.CategoryTree;
-import profect.group1.goormdotcom.category.service.CategoryTree.CategroyTreeService;
+import profect.group1.goormdotcom.category.service.CategroyTreeService;
 
 import java.util.UUID;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -50,6 +51,7 @@ public class CategoryController implements CategoryApiDocs{
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<UUID> createCategory(
         @RequestBody @Valid CategoryRequestDto categoryRequestDto
     ) {
@@ -59,6 +61,7 @@ public class CategoryController implements CategoryApiDocs{
     }
     
     @DeleteMapping("/{categoryId}")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<UUID> deleteCategory(
         @PathVariable(value = "categoryId") UUID categoryId
     ) {
@@ -67,6 +70,7 @@ public class CategoryController implements CategoryApiDocs{
     }
 
     @PutMapping("/{categoryId}")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<CategoryResponseDto> updateCategory(
         @PathVariable(value = "categoryId") UUID categoryId,
         @RequestBody @Valid CategoryRequestDto categoryRequestDto
