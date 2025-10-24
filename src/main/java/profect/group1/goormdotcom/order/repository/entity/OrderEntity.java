@@ -12,6 +12,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import profect.group1.goormdotcom.common.domain.BaseEntity;
+
 @Entity
 @Table(name = "p_order") // 실제 DB 테이블명
 @Getter
@@ -19,7 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 // @EntityListeners(AuditingEntityListener.class)
 @Builder(toBuilder = true)
-public class OrderEntity {
+public class OrderEntity extends BaseEntity {
     @Id
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
@@ -35,9 +37,8 @@ public class OrderEntity {
     private int totalAmount;
     private String orderName;
 
-    private LocalDateTime createdAt;
     private LocalDateTime deletedAt;
-    private LocalDateTime updatedAt;
+    private String status; // "ORD0001" 등 문자열
     // private LocalDateTime orderDate;
 
     // @Enumerated(EnumType.STRING)

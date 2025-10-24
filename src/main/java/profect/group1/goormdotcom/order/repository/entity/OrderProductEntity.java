@@ -1,10 +1,10 @@
 package profect.group1.goormdotcom.order.repository.entity;
 
+import profect.group1.goormdotcom.common.domain.BaseEntity;
+
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
-import java.util.List;   
 
 @Entity
 @Table(name = "p_order_product")
@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 
-public class OrderProductEntity {
+public class OrderProductEntity extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -42,6 +42,4 @@ public class OrderProductEntity {
     @Column(name="total_amount", nullable=false)
     private int totalAmount;
 
-    @Column(name="created_at", nullable=false)
-    private LocalDateTime createdAt;
 }

@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import profect.group1.goormdotcom.order.controller.dto.OrderRequestDto;
-import profect.group1.goormdotcom.order.controller.dto.OrderResponseDto;
 import profect.group1.goormdotcom.order.service.OrderService;
+import profect.group1.goormdotcom.order.domain.Order;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -21,8 +21,9 @@ public class OrderController {
     //주문생성 (재고 확인까지)
     // *POST /api/v1/orders
     @PostMapping
-    public ResponseEntity<OrderResponseDto> create(@Valid @RequestBody OrderRequestDto req) {
-        return ResponseEntity.ok(orderService.create(req));
+    public ResponseEntity<Order> create(@Valid @RequestBody OrderRequestDto req) {
+        Order order = orderService.create(req);
+        return ResponseEntity.ok(order);
     }
     // 결제 완료 처리(프론트에서 결제 완료 후 호출)
     // POST /api/v1/orders/{orderId}/payment
@@ -36,16 +37,16 @@ public class OrderController {
      * 배송 상태 업데이트 (배송 서비스에서 호출 or 조회)
      * PUT /api/v1/orders/{orderId}/delivery/status
      */
-    @PutMapping("/{orderId}/delivery/status")
-    public ResponseEntity<OrderResponseDto> updateDeliveryStatus(@PathVariable UUID orderId) {
-        return ResponseEntity.ok(orderService.updateDeliveryStatus(orderId));
-    }
+    // @PutMapping("/{orderId}/delivery/status")
+    // public ResponseEntity<Order> updateDeliveryStatus(@PathVariable UUID orderId) {
+    //     return ResponseEntity.ok(orderService.updateDeliveryStatus(orderId));
+    // }
     /**
      * 주문 취소
      * POST /api/v1/orders/{orderId}/cancel
      */
     @PostMapping("/{orderId}/cancel")
-    public ResponseEntity<OrderResponseDto> cancel(@PathVariable UUID orderId) {
+    public ResponseEntity<Order> cancel(@PathVariable UUID orderId) {
         return ResponseEntity.ok(orderService.cancel(orderId));
     }
     /**
@@ -57,12 +58,12 @@ public class OrderController {
     //     return ResponseEntity.ok(orderService.completeReturn(orderId));
     // }
     @GetMapping
-    public ResponseEntity<List<OrderResponseDto>> getAllOrders(){
+    public ResponseEntity<List<Order>> getAllOrders(){
         return ResponseEntity.ok(orderService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponseDto> getOne(@PathVariable UUID id){
+    public ResponseEntity<Order> getOne(@PathVariable UUID id){
         return ResponseEntity.ok(orderService.getOne(id));
     }
 
