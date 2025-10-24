@@ -43,7 +43,7 @@ public interface StockApiDocs {
     );
 
     @Operation(summary = "재고 차감", description = "주문 시 요청 수량만큼 재고를 차감합니다.")
-    ApiResponse<ChangeStockQuantityResponseDto> checkStock(
+    ApiResponse<ChangeStockQuantityResponseDto> decreaseStock(
         @Parameter(description = "재고 차감 요청", required = true)
         @RequestBody ChangeStockQuantityRequestDto changeStockQuantityRequestDto
     );

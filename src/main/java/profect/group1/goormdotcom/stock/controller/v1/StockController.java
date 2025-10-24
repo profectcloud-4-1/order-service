@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class StockController implements StockApiDocs {
 
     private final StockService stockService;
-    private final StockRepository stockRepository;
 
     @PostMapping
     @PreAuthorize("hasRole('SELLER')")
@@ -70,8 +69,8 @@ public class StockController implements StockApiDocs {
         return ApiResponse.of(SuccessStatus._OK, productId);
     }
     
-    @PostMapping("/check")
-    public ApiResponse<ChangeStockQuantityResponseDto> checkStock(
+    @PostMapping("/decrease")
+    public ApiResponse<ChangeStockQuantityResponseDto> decreaseStock(
         @RequestBody ChangeStockQuantityRequestDto changeStockQuantityRequestDto
     ) {
         Boolean status = stockService.decreaseStock(
