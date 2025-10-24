@@ -32,9 +32,9 @@ import profect.group1.goormdotcom.delivery.repository.entity.DeliveryStepHistory
 import profect.group1.goormdotcom.delivery.repository.entity.DeliveryReturnEntity;
 import profect.group1.goormdotcom.delivery.repository.entity.DeliveryReturnAddressEntity;
 import profect.group1.goormdotcom.delivery.repository.entity.DeliveryReturnStepHistoryEntity;
-import profect.group1.goormdotcom.delivery.repository.entity.BrandAddressEntity;
+import profect.group1.goormdotcom.delivery.repository.entity.GoormAddressEntity;
 import profect.group1.goormdotcom.delivery.repository.entity.CustomerAddressEntity;
-import profect.group1.goormdotcom.delivery.repository.BrandAddressRepository;
+import profect.group1.goormdotcom.delivery.repository.GoormAddressRepository;
 import profect.group1.goormdotcom.delivery.repository.CustomerAddressRepository;
 import profect.group1.goormdotcom.delivery.repository.mapper.DeliveryAddressMapper;
 
@@ -52,7 +52,7 @@ public class DeliveryManager {
 	private final DeliveryRepository repo;
 	private final DeliveryReturnRepository returnRepo;
 	private final DeliveryAddressRepository addressRepo;
-	private final BrandAddressRepository brandAddressRepo;
+	private final GoormAddressRepository goormAddressRepo;
 	private final CustomerAddressRepository customerAddressRepo;
 	private final DeliveryReturnAddressRepository returnAddressRepo;
 	private final DeliveryStepHistoryRepository stepHistoryRepo;
@@ -67,11 +67,11 @@ public class DeliveryManager {
     }
 
 	@Transactional
-    public Delivery createDelivery(final UUID orderId, final UUID brandId, final UUID customerAddressId) {
+    public Delivery createDelivery(final UUID orderId, final UUID customerAddressId) {
         Optional<DeliveryEntity> already = this.repo.findByOrderId(orderId);
         if (already.isPresent()) throw new IllegalArgumentException("Delivery already exists");
 
-        BrandAddressEntity brandAddressEntity = this.brandAddressRepo.findByBrandId(brandId).orElseThrow(() -> new IllegalArgumentException("Brand address not found"));
+        GoormAddressEntity goormAddressEntity = this.goormAddressRepo.findTopByOrderByCreatedAtDesc().orElseThrow(() -> new IllegalArgumentException("Goorm address not found"));
         CustomerAddressEntity customerAddressEntity = this.customerAddressRepo.findById(customerAddressId).orElseThrow(() -> new IllegalArgumentException("Customer address not found"));
 
         // insert delivery
@@ -87,11 +87,11 @@ public class DeliveryManager {
         // insert address
         DeliveryAddressEntity address = DeliveryAddressEntity.builder()
             .deliveryId(deliveryId)
-            .senderAddress(brandAddressEntity.getAddress())
-            .senderAddressDetail(brandAddressEntity.getAddressDetail())
-            .senderZipcode(brandAddressEntity.getZipcode())
-            .senderPhone(brandAddressEntity.getPhone())
-            .senderName(brandAddressEntity.getName())
+            .senderAddress(goormAddressEntity.getAddress())
+            .senderAddressDetail(goormAddressEntity.getAddressDetail())
+            .senderZipcode(goormAddressEntity.getZipcode())
+            .senderPhone(goormAddressEntity.getPhone())
+            .senderName(goormAddressEntity.getName())
             .receiverAddress(customerAddressEntity.getAddress())
             .receiverAddressDetail(customerAddressEntity.getAddressDetail())
             .receiverZipcode(customerAddressEntity.getZipcode())
@@ -225,41 +225,37 @@ public class DeliveryManager {
         this.customerAddressRepo.delete(entity);
     }
 
-    // ===== Brand Address (MASTER) =====
-    public List<DeliveryAddress> getBrandAddressesByBrandId(final UUID brandId) {
-        List<BrandAddressEntity> entities = this.brandAddressRepo.findAllByBrandId(brandId);
-        return entities.stream().map(this.deliveryAddressMapper::toDomainFromBrandAddress).toList();
+    // ===== Goormdotcom Address (MASTER) =====
+    public DeliveryAddress getGoormAddress() {
+        GoormAddressEntity entity = this.goormAddressRepo.findTopByOrderByCreatedAtDesc().orElseThrow(() -> new IllegalArgumentException("Goorm address not found"));
+        return this.deliveryAddressMapper.toDomainFromGoormAddress(entity);
     }
 
-    public DeliveryAddress createBrandAddress(final UUID brandId, String address, String addressDetail, String zipcode, String phone, String name) {
-        BrandAddressEntity entity = BrandAddressEntity.builder()
-            .brandId(brandId)
+    public DeliveryAddress createGoormAddress(String address, String addressDetail, String zipcode, String phone, String name) {
+        Optional<GoormAddressEntity> already = this.goormAddressRepo.findTopByOrderByCreatedAtDesc();
+        if (already.isPresent()) throw new IllegalArgumentException("Goorm address already exists");
+
+        GoormAddressEntity entity = GoormAddressEntity.builder()
             .address(address)
             .addressDetail(addressDetail)
             .zipcode(zipcode)
             .phone(phone)
             .name(name)
             .build();
-        this.brandAddressRepo.save(entity);
-        return this.deliveryAddressMapper.toDomainFromBrandAddress(entity);
+        this.goormAddressRepo.save(entity);
+        return this.deliveryAddressMapper.toDomainFromGoormAddress(entity);
     }
 
-    public DeliveryAddress updateBrandAddress(final UUID addressId, String address, String addressDetail, String zipcode, String phone, String name) {
-        BrandAddressEntity entity = this.brandAddressRepo.findById(addressId)
-            .orElseThrow(() -> new IllegalArgumentException("Brand address not found"));
+    public DeliveryAddress updateGoormAddress(String address, String addressDetail, String zipcode, String phone, String name) {
+        GoormAddressEntity entity = this.goormAddressRepo.findTopByOrderByCreatedAtDesc()
+            .orElseThrow(() -> new IllegalArgumentException("Goorm address not found"));
         entity.setAddress(address);
         entity.setAddressDetail(addressDetail);
         entity.setZipcode(zipcode);
         entity.setPhone(phone);
         entity.setName(name);
-        this.brandAddressRepo.save(entity);
-        return this.deliveryAddressMapper.toDomainFromBrandAddress(entity);
-    }
-
-    public void deleteBrandAddress(final UUID addressId) {
-        BrandAddressEntity entity = this.brandAddressRepo.findById(addressId)
-            .orElseThrow(() -> new IllegalArgumentException("Brand address not found"));
-        this.brandAddressRepo.delete(entity);
+        this.goormAddressRepo.save(entity);
+        return this.deliveryAddressMapper.toDomainFromGoormAddress(entity);
     }
 
     private String generateTrackingNumber() {

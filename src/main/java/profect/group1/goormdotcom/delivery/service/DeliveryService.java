@@ -22,11 +22,10 @@ public interface DeliveryService {
 	/** 
 	 * 배송 생성
 	 * @param orderId 주문 ID
-	 * @param brandId 판매 브랜드 ID (p_brand.id)
 	 * @param customerAddressId 고객 배송지 ID (p_customer_address.id)
 	 * @return 배송 정보
 	 */
-	public Delivery createDelivery(UUID orderId, UUID brandId, UUID customerAddressId);
+	public Delivery createDelivery(UUID orderId, UUID customerAddressId);
 
 	/** 
 	 * 배송 반송 (배송 완료된 경우만 사용, 배송완료가 아닌 경우 예외 발생)
@@ -46,8 +45,7 @@ public interface DeliveryService {
 	public boolean deleteCustomerAddress(UUID customerId, UUID addressId);
 
     // Brand address (MASTER)
-    public List<DeliveryAddress> getBrandAddressesByBrandId(UUID brandId);
-    public DeliveryAddress createBrandAddress(CreateAddressRequestDto body);
-	public DeliveryAddress updateBrandAddress(UUID addressId, CreateAddressRequestDto body);
-	public boolean deleteBrandAddress(UUID addressId);
+    public DeliveryAddress getGoormAddress();
+    public DeliveryAddress createGoormAddress(CreateAddressRequestDto body);
+	public DeliveryAddress updateGoormAddress(CreateAddressRequestDto body);
 }

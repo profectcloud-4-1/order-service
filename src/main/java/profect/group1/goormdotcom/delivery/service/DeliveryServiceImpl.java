@@ -47,8 +47,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 		return DeliveryMapper.toDomain(found.get()).canReturn();
 	}
 
-	public Delivery createDelivery(UUID orderId, UUID brandId, UUID customerAddressId) {
-		Delivery delivery = this.deliveryManager.createDelivery(orderId, brandId, customerAddressId);
+	public Delivery createDelivery(UUID orderId, UUID customerAddressId) {
+		Delivery delivery = this.deliveryManager.createDelivery(orderId, customerAddressId);
 
 		return delivery;
 	}
@@ -81,20 +81,16 @@ public class DeliveryServiceImpl implements DeliveryService {
 	}
 
     // Brand address (MASTER)
-    public List<DeliveryAddress> getBrandAddressesByBrandId(UUID brandId) {
-        return this.deliveryManager.getBrandAddressesByBrandId(brandId);
+    public DeliveryAddress getGoormAddress() {
+        return this.deliveryManager.getGoormAddress();
     }
 
-    public DeliveryAddress createBrandAddress(CreateAddressRequestDto body) {
-        return this.deliveryManager.createBrandAddress(body.getBrandId(), body.getAddress(), body.getAddressDetail(), body.getZipcode(), body.getPhone(), body.getName());
+    public DeliveryAddress createGoormAddress(CreateAddressRequestDto body) {
+        return this.deliveryManager.createGoormAddress(body.getAddress(), body.getAddressDetail(), body.getZipcode(), body.getPhone(), body.getName());
     }
 
-    public DeliveryAddress updateBrandAddress(UUID addressId, CreateAddressRequestDto body) {
-        return this.deliveryManager.updateBrandAddress(addressId, body.getAddress(), body.getAddressDetail(), body.getZipcode(), body.getPhone(), body.getName());
+    public DeliveryAddress updateGoormAddress(CreateAddressRequestDto body) {
+        return this.deliveryManager.updateGoormAddress(body.getAddress(), body.getAddressDetail(), body.getZipcode(), body.getPhone(), body.getName());
     }
 
-    public boolean deleteBrandAddress(UUID addressId) {
-        this.deliveryManager.deleteBrandAddress(addressId);
-        return true;
-    }
 }

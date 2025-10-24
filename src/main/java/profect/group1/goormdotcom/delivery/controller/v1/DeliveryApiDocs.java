@@ -37,18 +37,14 @@ public interface DeliveryApiDocs {
     @Operation(summary = "내 배송지 삭제", security = { @SecurityRequirement(name = "bearerAuth") })
     ApiResponse<Boolean> deleteMyAddress(HttpServletRequest request, @PathVariable @Parameter(description = "주소 ID") UUID addressId);
 
-    @Operation(summary = "브랜드 배송지 목록 조회", description = "MASTER only", security = { @SecurityRequirement(name = "bearerAuth") })
-    ApiResponse<List<DeliveryAddress>> getBrandAddresses(@RequestParam @Parameter(description = "브랜드 ID") UUID brandId);
+    @Operation(summary = "구름닷컴 배송지 조회", description = "MASTER only", security = { @SecurityRequirement(name = "bearerAuth") })
+    ApiResponse<DeliveryAddress> getGoormAddress();
 
-    @Operation(summary = "브랜드 배송지 생성", description = "MASTER only", security = { @SecurityRequirement(name = "bearerAuth") })
-    ApiResponse<DeliveryAddress> createBrandAddress(@RequestBody CreateAddressRequestDto body);
+    @Operation(summary = "구름닷컴 배송지 생성", description = "MASTER only", security = { @SecurityRequirement(name = "bearerAuth") })
+    ApiResponse<DeliveryAddress> createGoormAddress(@RequestBody CreateAddressRequestDto body);
 
-    @Operation(summary = "브랜드 배송지 수정", description = "MASTER only", security = { @SecurityRequirement(name = "bearerAuth") })
-    ApiResponse<DeliveryAddress> updateBrandAddress(
-        @PathVariable @Parameter(description = "브랜드 주소 ID") UUID addressId,
+    @Operation(summary = "구름닷컴 배송지 수정", description = "MASTER only", security = { @SecurityRequirement(name = "bearerAuth") })
+    ApiResponse<DeliveryAddress> updateGoormAddress(
         @RequestBody CreateAddressRequestDto body
     );
-
-    @Operation(summary = "브랜드 배송지 삭제", description = "MASTER only", security = { @SecurityRequirement(name = "bearerAuth") })
-    ApiResponse<Boolean> deleteBrandAddress(@PathVariable @Parameter(description = "브랜드 주소 ID") UUID addressId);
 }

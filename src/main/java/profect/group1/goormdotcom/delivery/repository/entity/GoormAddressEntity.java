@@ -29,11 +29,11 @@ import org.hibernate.annotations.UuidGenerator;
 @ToString
 
 @Entity
-@Table(name = "p_brand_address")
-@Comment("브랜드 배송지")
+@Table(name = "p_goorm_address")
+@Comment("구름닷컴 배송지")
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
-@SQLDelete(sql = "update p_brand_address set deleted_at = NOW() where id = ?")
-public class BrandAddressEntity extends BaseEntity {
+@SQLDelete(sql = "update p_goorm_address set deleted_at = NOW() where id = ?")
+public class GoormAddressEntity extends BaseEntity {
 
 	@Id
 	@GeneratedValue
@@ -42,10 +42,6 @@ public class BrandAddressEntity extends BaseEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
-	
-	@Column(name = "brand_id", nullable = false)
-	@Comment("브랜드 ID (p_brand.id)")
-	private UUID brandId;
 
 	@Column(name = "address", nullable = false)
 	@Comment("주소")
