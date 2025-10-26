@@ -1,5 +1,7 @@
 package profect.group1.goormdotcom.payment.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +22,13 @@ import profect.group1.goormdotcom.payment.controller.dto.response.PaymentSearchR
 import profect.group1.goormdotcom.payment.controller.dto.response.PaymentSuccessResponseDto;
 import profect.group1.goormdotcom.payment.controller.mapper.PaymentDtoMapper;
 import profect.group1.goormdotcom.payment.domain.Payment;
+import profect.group1.goormdotcom.payment.domain.PaymentHistory;
 import profect.group1.goormdotcom.payment.domain.enums.Status;
 import profect.group1.goormdotcom.payment.domain.enums.TossPaymentStatus;
+import profect.group1.goormdotcom.payment.repository.PaymentHistoryRepository;
 import profect.group1.goormdotcom.payment.repository.PaymentRepository;
 import profect.group1.goormdotcom.payment.repository.entity.PaymentEntity;
+import profect.group1.goormdotcom.payment.repository.mapper.PaymentHistoryMapper;
 import profect.group1.goormdotcom.payment.repository.mapper.PaymentMapper;
 import profect.group1.goormdotcom.user.domain.User;
 
@@ -39,6 +44,7 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
+    private final PaymentHistoryRepository paymentHistoryRepository;
     private final TossPaymentConfig tossPaymentConfig;
     private final ApplicationEventPublisher eventPublisher;
     private final WebClient tossWebClient;
@@ -75,6 +81,16 @@ public class PaymentService {
 
         PaymentEntity savedEntity = paymentRepository.save(PaymentMapper.toEntity(payment));
         payment.setId(savedEntity.getId());
+
+        PaymentHistory history = PaymentHistory.create(
+                savedEntity.getId(),
+                "PAY0000",      //결제 대기
+                payment.getAmount(),
+                null,
+                null,
+                "REQUEST");
+
+        paymentHistoryRepository.save(PaymentHistoryMapper.toEntity(history));
 
         return payment;
     }
@@ -130,12 +146,26 @@ public class PaymentService {
             approvedAt = LocalDateTime.now();
         }
         paymentEntity.setPaymentKey(dto.getPaymentKey());
-        paymentEntity.setStatus("SUCCESS"); //DB에서 성공상태 긁어오기
+        paymentEntity.setStatus("PAY0001");
         paymentEntity.setApprovedAt(response.approvedAt().toLocalDateTime());
 
-
         //TODO: 히스토리 상태를 성공으로 변경
-        //실패 시 histrory 실패로 변경..
+        String rawResponseJson = null;
+        try {
+            rawResponseJson = new ObjectMapper().writeValueAsString(response);
+        } catch (JsonProcessingException ignored) {}
+
+        PaymentHistory history = PaymentHistory.create(
+                paymentEntity.getId(),
+                "PAY0001",                 //결제 승인
+                paymentEntity.getAmount(),
+                paymentEntity.getPaymentKey(),
+                rawResponseJson,
+                "SUCCESS"
+        );
+
+        paymentRepository.save(paymentEntity);
+        paymentHistoryRepository.save(PaymentHistoryMapper.toEntity(history));
 
         return response;
     }
@@ -145,7 +175,19 @@ public class PaymentService {
         PaymentEntity paymentEntity = paymentRepository.findByOrderNumber(dto.getOrderId())
                 .orElseThrow(() -> new PaymentHandler(ErrorStatus._PAYMENT_NOT_FOUND));
 
-        paymentEntity.setStatus("FAIL"); //DB에서 실패상태 긁어오기
+        PaymentHistory history = PaymentHistory.create(
+                paymentEntity.getId(),
+                "PAY0002",                 //결제 실패
+                paymentEntity.getAmount(),
+                paymentEntity.getPaymentKey(),
+                null,
+                "FAILED"
+        );
+
+        paymentEntity.setStatus("PAY0002");
+
+        paymentRepository.save(paymentEntity);
+        paymentHistoryRepository.save(PaymentHistoryMapper.toEntity(history));
     }
 
     @Transactional
@@ -154,10 +196,10 @@ public class PaymentService {
                 .orElseThrow(() -> new PaymentHandler(ErrorStatus._PAYMENT_NOT_FOUND));
 
         //상태 검증
-        if (paymentEntity.getStatus().equals("CANCEL")) //DB에서 긁어오기
+        if (paymentEntity.getStatus().equals("PAY0004"))
             throw new PaymentHandler(ErrorStatus._ALREADY_CANCELED_REQUEST);
-        if (!paymentEntity.getStatus().equals("SUCCESS")
-                && !paymentEntity.getStatus().equals("PARTIAL_CANCEL")) {
+        if (!paymentEntity.getStatus().equals("PAY0001")
+                && !paymentEntity.getStatus().equals("PAY0005")) {
             throw new PaymentHandler(ErrorStatus._INVALID_PAYMENT_STATUS);
         }
 
@@ -179,8 +221,19 @@ public class PaymentService {
         }
 
         //취소 요청 중 상태로 변경
-        paymentEntity.setStatus("CANCEL_PENDING"); //DB에서 취소대기 긁어오기
+        paymentEntity.setStatus("PAY0003");
         paymentRepository.save(paymentEntity);
+
+        PaymentHistory history = PaymentHistory.create(
+                paymentEntity.getId(),
+                "PAY0003",                 //결제 취소 대기
+                paymentEntity.getAmount(),
+                paymentEntity.getPaymentKey(),
+                dto.getCancelReason(),
+                "CANCEL_REQUESTED"
+        );
+
+        paymentHistoryRepository.save(PaymentHistoryMapper.toEntity(history));
 
         //트랜잭션 커밋 후 실행될 이벤트 -> PG에 결제 취소 요청
         eventPublisher.publishEvent(new PaymentCanceledEvent(paymentEntity.getId(), paymentKey, dto));
@@ -231,8 +284,6 @@ public class PaymentService {
             //예외 발생 시 Toss 상태 재조회로 동기화 시도
             syncPaymentStatusFromToss(paymentKey);
         }
-
-        //TODO: 히스토리에 취소사유 등록
     }
 
     @Transactional
@@ -245,15 +296,28 @@ public class PaymentService {
                 paymentEntity.getCanceledAmount() : 0L;
 
         //이번에 취소된 금액 추가
-        long newCanceledAmount = currentCanceledAmount + canceledAmount;
+        long currentCanceled = paymentEntity.getCanceledAmount() != null ? paymentEntity.getCanceledAmount() : 0L;
+        long newCanceled = currentCanceled + canceledAmount;
 
-        //상태 업데이트
-        boolean isPartial = newCanceledAmount < paymentEntity.getAmount();
-        paymentEntity.setCanceledAmount(newCanceledAmount);
-        paymentEntity.setStatus(isPartial ? "PARTIAL_CANCEL" : "CANCEL"); //긁어오기
+        boolean isPartial = newCanceled < paymentEntity.getAmount();
+        String statusCode = isPartial ? "PAY0005" : "PAY0004";
+
+        paymentEntity.setCanceledAmount(newCanceled);
+        paymentEntity.setStatus(statusCode);
         paymentEntity.setCanceledAt(canceledAt);
 
         paymentRepository.saveAndFlush(paymentEntity);
+
+        PaymentHistory history = PaymentHistory.create(
+                paymentEntity.getId(),
+                statusCode,                 //결제 취소 상태(부분/전체)
+                paymentEntity.getAmount(),
+                paymentEntity.getPaymentKey(),
+                null,
+                isPartial ? "CANCEL_PARTIAL_CONFIRMED" : "CANCEL_FULL_CONFIRMED"
+        );
+
+        paymentHistoryRepository.save(PaymentHistoryMapper.toEntity(history));
     }
 
     private void syncPaymentStatusFromToss(String paymentKey) {
@@ -274,9 +338,21 @@ public class PaymentService {
 
                 TossPaymentStatus tossStatus = TossPaymentStatus.valueOf(tossResponse.status().toUpperCase());
                 String codePk = TossPaymentStatus.getCodeByTossStatus(tossStatus);
+                String rawResponseJson = new ObjectMapper().writeValueAsString(tossResponse);
 
                 payment.setStatus(codePk);
                 paymentRepository.save(payment);
+
+                PaymentHistory history = PaymentHistory.create(
+                        payment.getId(),
+                        codePk,                 //결제 취소 상태(부분/전체)
+                        null,
+                        paymentKey,
+                        rawResponseJson,
+                        "SYNCED_FROM_TOSS"
+                );
+
+                paymentHistoryRepository.save(PaymentHistoryMapper.toEntity(history));
             }
         } catch (Exception ex) {
             log.error("보상 트랜잭션 실패 (PG 상태 조회 실패): {}", ex.getMessage());
