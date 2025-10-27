@@ -15,9 +15,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CreateDeliveryRequestDto {
     @Schema(description = "주문 ID (p_order.id)")
-    @NotBlank
+    @NotNull
     private UUID orderId;
     @Schema(description = "고객 배송지 ID (p_customer_address.id)")
-    @NotBlank
+    @NotNull
     private UUID customerAddressId;
 }

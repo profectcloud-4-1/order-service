@@ -16,13 +16,14 @@ import lombok.*;
 public class OrderStatusEntity extends BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "status", nullable = false)
     private String status; // ORDER_STATUS 그룹의 코드
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_name", nullable = false)
+    @JoinColumn(name = "order_id", nullable = false)
     private OrderEntity order;
 
 }

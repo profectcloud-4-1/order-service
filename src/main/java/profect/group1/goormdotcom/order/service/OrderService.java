@@ -24,6 +24,7 @@ import profect.group1.goormdotcom.order.repository.OrderStatusRepository;
 import profect.group1.goormdotcom.order.repository.entity.OrderEntity;
 import profect.group1.goormdotcom.order.repository.entity.OrderProductEntity;
 import profect.group1.goormdotcom.order.repository.entity.OrderStatusEntity;
+import profect.group1.goormdotcom.order.service.OrderNameFormatter;
 
 @Slf4j
 @Service
@@ -46,17 +47,25 @@ public class OrderService {
     private final PaymentClient paymentClient;
     private final DeliveryClient deliveryClient;
 
-    @Value("${features.external-call.stock-check:true}")
-    private Boolean stockCheckEnabled;
+    // @Value("${features.external-call.stock-check:true}")
+    // private Boolean stockCheckEnabled;
 
-    @Value("${features.external-call.payment-check:true}")
-    private Boolean paymentCheckEnabled;
+    // @Value("${features.external-call.payment-check:true}")
+    // private Boolean paymentCheckEnabled;
 
-    @Value("${features.external-call.delivery-check:true}")
-    private Boolean deliveryCheckEnabled;
+    // @Value("${features.external-call.delivery-check:true}")
+    // private Boolean deliveryCheckEnabled;
 
     // @PersistenceContext
     // private EntityManager em;
+       //상태 이력 추가
+    private void appendOrderStatus(UUID orderId, OrderStatus status){   
+        OrderEntity orderEntity = findOrderOrThrow(orderId);
+        orderStatusRepository.save(OrderStatusEntity.builder()
+            .order(orderEntity)
+            .status(status.getCode())
+            .build());
+    }
 
     // 1) 주문 생성: 재고 선차감(예약) + 주문(PENDING) -> 주문 완료 하면 
     // 재고 확인 먼저
@@ -64,7 +73,7 @@ public class OrderService {
     public Order create(OrderRequestDto req) {
         log.info("주문 생성 시작: customerId={}, itemCount={}", req.getCustomerId(), req.getItems().size());
 
-        //재고 확인 api
+        //재고 확인
         // for (OrderItemDto item : req.getItems()) {
         //     Boolean stockAvailable = stockClient.checkStock(item.getProductId(), item.getQuantity());
         //     if (!stockAvailable) {
@@ -74,21 +83,17 @@ public class OrderService {
         // }
         // log.info("재고 확인 완료");
 
-        // 아이템 저장
-
+        // 아이템 저장 (초기 값을 지정 해주고, 그 초기 값을 바탕으로 받아서 상태값만 변경해서 사용하는 방식으로 진행 )
+        // 기존에 내가 하던 방식은 OrderId 를 OrderName과 연동해야 해서 새로운 객체를 받고 그거를 바탕으로 루프 돌아야 하는게 그런방식이 영속성 문제에 걸려서 하지 못한 거였음
         OrderEntity orderEntity = OrderEntity.builder()
-                        .id(UUID.randomUUID())
                         .customerId(req.getCustomerId())
                         .sellerId(req.getSellerId())
                         .totalAmount(req.getTotalAmount())
                         .orderName("주문명")
+                        .status(OrderStatus.PENDING.getCode())
                         .build();
 
         orderRepository.save(orderEntity);
-
-        
-
-
 
         List<OrderProductEntity> lines = new ArrayList<>();
         for (OrderItemDto itemDto : req.getItems()) {
@@ -96,7 +101,7 @@ public class OrderService {
                     ? req.getOrderName() : "상품";
                     
             OrderProductEntity line = OrderProductEntity.builder()
-                .id(UUID.randomUUID())
+                .order(orderEntity)
                 .productId(itemDto.getProductId())
                 .productName(productName)
                 .quantity(itemDto.getQuantity())
@@ -104,47 +109,13 @@ public class OrderService {
                 .build();
             lines.add(line);
         }
-        
-        // 주문 엔터티 생성 (아이템이 있어야 주문명 생성 가능)
-        OrderEntity order = orderRepository.save(
-            OrderEntity.builder()
-                .id(UUID.randomUUID())
-                .customerId(req.getCustomerId())
-                .sellerId(req.getSellerId())
-                .totalAmount(req.getTotalAmount())
-                .orderName(OrderNameFormatter.makeOrderName(lines))
-                .build()
-        );
-        
-        // 아이템에 order 연결 후 저장
-        for (OrderProductEntity line : lines) {
-            OrderProductEntity lineWithOrder = OrderProductEntity.builder()
-                .id(line.getId())
-                .order(order)
-                .productId(line.getProductId())
-                .productName(line.getProductName())
-                .quantity(line.getQuantity())
-                .totalAmount(line.getTotalAmount())
-                .build();
-            orderProductRepository.save(lineWithOrder);
-        }
-        
-        // OrderEntity를 다시 조회해서 반환
-        OrderEntity saved = orderRepository.findById(order.getId()).orElse(order);
+        orderProductRepository.saveAll(lines);
 
-        //PENDING 상태
-        appendOrderStatus(saved.getId(), OrderStatus.PENDING);
-        log.info("주문 생성 완료: orderId={}, status=결제대기", saved.getId());
+        // 상태 이력 추가
+        appendOrderStatus(orderEntity.getId(), OrderStatus.PENDING);
 
-        // OrderStatusEntity current = latestStatus(saved.getId());
-        return orderMapper.toDomain(saved);
-
-        //최신 상태 조회 후 DTO 반환
-        // OrderStatusEntity current = orderStatusRepository
-        //     .findTop1ByOrder_IdOrderByCreatedAtDesc(order.getId())
-        //     .orElse(null);
-
-        // return OrderResponseDto.fromEntity(order, current);
+        log.info("주문 생성 완료: orderId={}, status=결제대기", orderEntity.getId());
+        return orderMapper.toDomain(orderEntity);
     }
 
     public Order completePayment(UUID orderId, UUID paymentId) {
@@ -174,12 +145,19 @@ public class OrderService {
         // } else {
         //     log.info("[DEV] 결제 확인 생략됨");
         // }
+
+        //재고 감소
+        // List<OrderProductEntity> products = orderProductRepository.findAll().stream()
+        //     .filter(p -> p.getOrder().getId().equals(orderId))
+        //     .toList();
         
-        // Boolean stockDecreased = stockClient.decreaseStock(product.getProductId(), product.getQuantity());
-        // if (!stockDecreased) {
-        //     log.error("재고 차감 실패: orderId={}, productId={}", orderId, product.getProductId());
-        //     appendOrderStatus(orderId, OrderStatus.CANCELLED);
-        //     throw new IllegalStateException("재고 차감에 실패했습니다.");
+        // for (OrderProductEntity product : products) {
+        //     Boolean stockDecreased = stockClient.decreaseStock(product.getProductId(), product.getQuantity());
+        //     if (!stockDecreased) {
+        //         log.error("재고 차감 실패: orderId={}, productId={}", orderId, product.getProductId());
+        //         appendOrderStatus(orderId, OrderStatus.CANCELLED);
+        //         throw new IllegalStateException("재고 차감에 실패했습니다.");
+        //     }
         // }
         // log.info("재고 차감 완료: orderId={}", orderId);
 
@@ -252,18 +230,18 @@ public class OrderService {
         log.info("결제 취소 완료: orderId={}", orderId);
         
         // 재고 복구
-        List<OrderProductEntity> products = orderProductRepository.findAll().stream()
-            .filter(p -> p.getOrder().getId().equals(orderId))
-            .toList();
+        // List<OrderProductEntity> products = orderProductRepository.findAll().stream()
+        //     .filter(p -> p.getOrder().getId().equals(orderId))
+        //     .toList();
         
-        for (OrderProductEntity product : products) {
-            Boolean stockIncreased = stockClient.increaseStock(product.getProductId(), product.getQuantity());
-            if (!stockIncreased) {
-                log.error("재고 복구 실패: orderId={}, productId={}", orderId, product.getProductId());
-                throw new IllegalStateException("재고 복구에 실패했습니다.");
-            }
-        }
-        log.info("재고 복구 완료: orderId={}", orderId);
+        // for (OrderProductEntity product : products) {
+        //     Boolean stockIncreased = stockClient.increaseStock(product.getProductId(), product.getQuantity());
+        //     if (!stockIncreased) {
+        //         log.error("재고 복구 실패: orderId={}, productId={}", orderId, product.getProductId());
+        //         throw new IllegalStateException("재고 복구에 실패했습니다.");
+        //     }
+        // }
+        // log.info("재고 복구 완료: orderId={}", orderId);
         //배송 취소 요청
         Boolean cancelDelivery = deliveryClient.cancelDelivery(orderId);
         if(!cancelDelivery) {
@@ -336,27 +314,13 @@ public class OrderService {
             // }
             // ).collect(Collectors.toList());
         // }
-    //상태 이력 추가
-    private void appendOrderStatus(UUID orderId, OrderStatus status){
-        OrderEntity order = findOrderOrThrow(orderId);
-        // .orElseThrow(() -> new IllegalArgumentException("주문없음:" + orderId));
-
-
-        orderStatusRepository.save(
-            OrderStatusEntity.builder()
-                .id(UUID.randomUUID())
-                .order(order)
-                .status(status.getCode()) // = "ORD0002" 등 문자열
-                .build()
-        );
-        orderRepository.save(order.toBuilder().build());
-    }
+ 
     //최신 상태 조회
     @Transactional(readOnly = true)
     private OrderStatusEntity latestStatus(UUID orderId){
-        return orderStatusRepository.findTop1ByOrder_IdOrderByCreatedAtDesc(orderId)
-            .orElseThrow(()-> new IllegalStateException("상태 이력이 없음. orderId=" + orderId));
-
+        return orderStatusRepository
+            .findTop1ByOrder_IdOrderByCreatedAtDesc(orderId)
+            .orElseThrow(() -> new IllegalStateException("상태 이력이 없음. orderId=" + orderId));
     }
     
     //주문 조회
