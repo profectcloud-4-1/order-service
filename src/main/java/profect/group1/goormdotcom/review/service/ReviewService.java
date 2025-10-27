@@ -34,8 +34,16 @@ public class ReviewService {
     private final ReviewImageRepository reviewImageRepository;
 
     // TODO: 다른 도메인 서비스 통신용 (나중에 추가)
-    // private final DeliveryServiceClient deliveryServiceClient;
-    // private final ProductServiceClient productServiceClient;
+
+    // 용도 : presigned client 받아오기
+    /*
+    private final PresignedClient presignedClient;
+
+    public ReviewService(PresignedClient presignedClient) {
+        this.presignedClient = presignedClient;
+    }
+     */
+
 
     /**
      * 리뷰 생성 (POST)
@@ -75,6 +83,11 @@ public class ReviewService {
             );
             ReviewImageEntity savedImageEntity = reviewImageRepository.save(imageEntity);
             savedImageUrl = savedImageEntity.getImageObject();
+
+            // S3 temp -> main 이동 (업로드 확정)
+            /*if (savedReview.getFileId() != null) {
+                presignedClient.confirmUpload(savedReview.getFileId());
+            }*/
         }
 
         // 7. Domain으로 재구성 후 응답 반환
