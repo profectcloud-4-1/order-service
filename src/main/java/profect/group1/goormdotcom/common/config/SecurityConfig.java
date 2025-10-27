@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import profect.group1.goormdotcom.common.security.AuthenticationFailedEntryPoint;
 import profect.group1.goormdotcom.common.security.JwtAuthenticationFilter;
 import profect.group1.goormdotcom.common.security.JwtTokenProvider;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
 @EnableWebSecurity
@@ -43,6 +44,8 @@ public class SecurityConfig {
                         // 회원가입, 로그인 허용
                         .requestMatchers("/users/register").permitAll()
                         .requestMatchers("/users/login").permitAll()
+                        .requestMatchers("/delivery/address/mine/**").hasRole("CUSTOMER")
+                        .requestMatchers("/delivery/address/brand/**").hasRole("MASTER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
