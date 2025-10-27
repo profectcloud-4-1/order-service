@@ -48,7 +48,7 @@ public class StockController implements StockApiDocs {
     }
 
     @PutMapping("/{productId}")
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<StockResponseDto> updateStock(
         @PathVariable(value="productId") UUID productId, 
         @RequestBody int stockQuantity
@@ -58,7 +58,7 @@ public class StockController implements StockApiDocs {
     }
 
     @GetMapping("/{productId}")
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<StockResponseDto> getStock(
         @PathVariable(value = "productId") UUID productId
     ) {
@@ -68,7 +68,7 @@ public class StockController implements StockApiDocs {
     }
 
     @DeleteMapping("/{productId}")
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<UUID> deleteStock(
         @PathVariable(value = "productId") UUID productId
     ) {
