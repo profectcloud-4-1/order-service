@@ -1,8 +1,10 @@
 package profect.group1.goormdotcom.order.service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import profect.group1.goormdotcom.common.domain.BaseEntity;
 import profect.group1.goormdotcom.order.repository.entity.OrderProductEntity;
 
 public final class OrderNameFormatter {
@@ -16,7 +18,7 @@ public final class OrderNameFormatter {
             .sorted(
                 Comparator.comparingInt(OrderProductEntity::getTotalAmount).reversed()
                 .thenComparingInt(OrderProductEntity::getQuantity).reversed()
-                .thenComparing(OrderProductEntity::getCreatedAt)
+                // .thenComparing(BaseEntity::getCreatedAt)
             )
             .findFirst()
             .orElse(items.get(0));

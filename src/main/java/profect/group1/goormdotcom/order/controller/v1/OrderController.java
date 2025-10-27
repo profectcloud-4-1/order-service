@@ -20,7 +20,7 @@ public class OrderController {
     private final OrderService orderService;
     //주문생성 (재고 확인까지)
     // *POST /api/v1/orders
-    @PostMapping
+    @PostMapping("api/v1/orders")
     public ResponseEntity<Order> create(@Valid @RequestBody OrderRequestDto req) {
         Order order = orderService.create(req);
         return ResponseEntity.ok(order);
@@ -46,8 +46,8 @@ public class OrderController {
      * POST /api/v1/orders/{orderId}/cancel
      */
     @PostMapping("/{orderId}/cancel")
-    public ResponseEntity<Order> cancel(@PathVariable UUID orderId) {
-        return ResponseEntity.ok(orderService.cancel(orderId));
+    public ResponseEntity<Order> cancel(@PathVariable UUID orderId, @RequestParam UUID paymentId) {
+        return ResponseEntity.ok(orderService.cancel(orderId, paymentId));
     }
     /**
      * 반송 완료 처리 (배송 서비스에서 webhook 호출)

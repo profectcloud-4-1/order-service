@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
 
@@ -24,6 +25,15 @@ public interface DeliveryClient {
      */
     @PostMapping("/api/v1/delivery/request")
     Boolean requestDelivery(@RequestBody DeliveryRequest request);
+
+    // /**
+    //  * 간단한 배송 요청 (orderId, customerId만)
+    //  * @param orderId 주문 ID
+    //  * @param customerId 고객 ID
+    //  * @return 배송 요청 성공 여부
+    //  */
+    // @PostMapping("/api/v1/delivery/request-simple")
+    // Boolean requestDeliverySimple(@RequestParam UUID orderId, @RequestParam UUID customerId);
 
     /**
      * 배송 상태 조회
@@ -54,10 +64,10 @@ public interface DeliveryClient {
      */
     record DeliveryRequest(
         UUID orderId,
-        UUID customerId,
-        String address,
-        String recipientName,
-        String recipientPhone
+        UUID customerId
+        // String address,
+        // String recipientName,
+        // String recipientPhone
     ) {}
 
     /**
@@ -73,10 +83,10 @@ public interface DeliveryClient {
      * 배송 상태 enum
      */
     enum DeliveryStatus {
-        PREPARING,      // 배송 준비 중
-        SHIPPED,        // 배송 중
-        DELIVERED,      // 배송 완료
-        RETURNED,       // 반송 완료
+        PENDING,      // 대기
+        IN_DELIVERY,        // 배송 중
+        FINISHED,      // 배송 완료, 반송완료료
+        // RETURNED,       // 반송 완료
         CANCELLED       // 취소됨
     }
 }

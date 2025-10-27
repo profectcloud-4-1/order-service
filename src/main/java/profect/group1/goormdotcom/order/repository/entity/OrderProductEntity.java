@@ -4,7 +4,11 @@ import profect.group1.goormdotcom.common.domain.BaseEntity;
 
 import jakarta.persistence.*;
 import java.util.UUID;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "p_order_product")
@@ -12,7 +16,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-
 public class OrderProductEntity extends BaseEntity {
 
     @Id
