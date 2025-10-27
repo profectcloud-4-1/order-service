@@ -39,7 +39,7 @@ public class StockController implements StockApiDocs {
     private final StockService stockService;
 
     @PostMapping
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<StockResponseDto> registerStock(
         @RequestBody StockRequestDto stockRequestDto
     ) {

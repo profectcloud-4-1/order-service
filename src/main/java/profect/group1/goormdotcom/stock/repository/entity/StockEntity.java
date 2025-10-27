@@ -23,7 +23,7 @@ import profect.group1.goormdotcom.common.domain.BaseEntity;
 @Entity
 @Table(name = "p_stock")
 // @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
-@SQLRestriction("delted_at IS NULL")
+@SQLRestriction("deleted_at IS NULL")
 @SQLDelete(sql = "update p_stock set deleted_at = NOW() WHERE id = ?")
 public class StockEntity extends BaseEntity{
     

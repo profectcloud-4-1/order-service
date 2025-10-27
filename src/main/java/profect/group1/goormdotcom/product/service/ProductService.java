@@ -59,6 +59,14 @@ public class ProductService {
             price, 
             description
         );
+        
+        // 재고 등록 요청
+        StockRequestDto stockRequestDto = new StockRequestDto(productId, stockQuantity);
+        ApiResponse<StockResponseDto> response = stockClient.registerStock(stockRequestDto);
+        StockResponseDto stockResponseDto = response.getResult();
+        if (stockResponseDto == null) {
+            throw new IllegalStateException("Failed to register stock");
+        }
 
         // 상품 이미지 메타 정보 저장 (실제 이미지는 presignedURL을 통해 S3로 직접 업로드 되었음.)
         List<ProductImageEntity> productImageEntities = imageIds.stream().map((imageId) -> new ProductImageEntity(imageId, productId)).toList();
@@ -67,13 +75,6 @@ public class ProductService {
         // Image confirm 요청
         for (UUID imageId: imageIds) {
             presignedClient.confirmUpload(imageId);
-        }
-        
-        StockRequestDto stockRequestDto = new StockRequestDto(productId, stockQuantity);
-        ApiResponse<StockResponseDto> response = stockClient.registerStock(stockRequestDto);
-        StockResponseDto stockResponseDto = response.getResult();
-        if (stockResponseDto == null) {
-            throw new IllegalStateException("Failed to register stock");
         }
         
         productRepository.save(productEntity);
@@ -119,7 +120,7 @@ public class ProductService {
         final UUID productId,
         final UUID brandId
     ) {
-        ProductEntity productEntity = productRepository.findById(productId)
+        productRepository.findById(productId)
             .orElseThrow(() -> new IllegalArgumentException("Prdocut not found"));
 
         // if (productEntity.getBrandId() != brandId) {
@@ -163,13 +164,13 @@ public class ProductService {
             ObjectKeyResponse objectKeyResponse = response.getBody();
             if (objectKeyResponse == null) {
                 // TODO: 이미지가 없을 경우 어떻게 처리? 
-                // 기본 이미지가 있어야 할 것 같다.
+                // 기본 이미지가 있어야 할 것 같다. (goorm 이미지?)
                 objectKeyResponse = new ObjectKeyResponse("");
             }
             
             // TODO: cloudfront 도메인을 presigned에서 처리하는게 더 좋을 듯
             // 도메인 변경될때 이 변경에 대응할 책임이 presigned에 있다고 보임.
-            urlMapping.put(imageEntity,  cloudfrontDomain + objectKeyResponse.getObjectKey());
+            urlMapping.put(imageEntity,  cloudfrontDomain + "/" + objectKeyResponse.getObjectKey());
         }
         
         List<ProductImage> images = urlMapping.keySet().stream()
