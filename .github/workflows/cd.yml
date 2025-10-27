@@ -66,7 +66,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no \
               -i $SSH_KEY_PATH \
-              -J ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }} \
+              -o ProxyCommand="ssh -o StrictHostKeyChecking=no -i $BASTION_KEY_PATH -p ${{ secrets.BASTION_SSH_PORT }} -W %h:%p ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }}" \
               ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
             cd /home/${{ secrets.EC2_USER }}/app    # compose 파일 위치
             sed -i "s|\(${{ secrets.IMAGE_NAME }}:\).*|\1${{ needs.build.outputs.tag }}|" docker-compose.yaml
