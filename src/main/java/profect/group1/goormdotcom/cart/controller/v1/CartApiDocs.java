@@ -16,6 +16,7 @@ import profect.group1.goormdotcom.cart.controller.dto.CartResponseDto;
 import profect.group1.goormdotcom.cart.controller.dto.request.AddCartItemRequestDto;
 import profect.group1.goormdotcom.cart.controller.dto.request.DeleteBulkCartItemRequestDto;
 import profect.group1.goormdotcom.cart.controller.dto.request.UpdateCartItemRequestDto;
+import profect.group1.goormdotcom.user.controller.auth.LoginUser;
 
 @Tag(name = "장바구니", description = "장바구니 관리 API")
 public interface CartApiDocs {
@@ -74,7 +75,53 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> getCart();
+	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> getCart(
+			@LoginUser UUID userId
+	);
+
+	@Operation(
+			summary = "장바구니 생성",
+			description = "회원가입 한 사용자의 장바구니를 생성한다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					responseCode = "201",
+					description = "장바구니 생성 성공",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiResponse.class),
+							examples = @ExampleObject(
+									name = "성공 예시",
+									value = """
+											{
+												"code": "201",
+												"message": "장바구니 생성에 성공하였습니다.",
+												"result": "123e4567-e89b-12d3-a456-426614174000"
+											}
+											"""
+							)
+					)
+			),
+			@ApiResponse(
+					responseCode = "400",
+					description = "잘못된 요청 데이터",
+					content = @Content(
+							mediaType = "application/json",
+							examples = @ExampleObject(
+									name = "실패 예시",
+									value = """
+											{
+											    "code": "400",
+											    "message": "이미 장바구니가 있습니다."
+											}
+											"""
+							)
+					)
+			)
+	})
+	profect.group1.goormdotcom.apiPayload.ApiResponse<UUID> createCart(
+			@LoginUser UUID userId
+	);
 
 	@Operation(
 			summary = "장바구니에 아이템 추가",
@@ -132,7 +179,8 @@ public interface CartApiDocs {
 	})
 	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> addItemToCart(
 			@Parameter(description = "장바구니에 추가할 아이템 정보", required = true)
-			@RequestBody @Valid AddCartItemRequestDto request
+			@RequestBody @Valid AddCartItemRequestDto request,
+			@LoginUser UUID userId
 	);
 
 	@Operation(
@@ -193,7 +241,8 @@ public interface CartApiDocs {
 			@Parameter(description = "수정할 장바구니 아이템 ID", required = true)
 			@PathVariable(value = "cartItemId") UUID cartItemId,
 			@Parameter(description = "수정할 수량 정보", required = true)
-			@RequestBody @Valid UpdateCartItemRequestDto request
+			@RequestBody @Valid UpdateCartItemRequestDto request,
+			@LoginUser UUID userId
 	);
 
 	@Operation(
@@ -244,7 +293,8 @@ public interface CartApiDocs {
 	})
 	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteItemFromCart(
 			@Parameter(description = "삭제할 장바구니 아이템 ID", required = true)
-			@PathVariable(value = "cartItemId") UUID cartItemId
+			@PathVariable(value = "cartItemId") UUID cartItemId,
+			@LoginUser UUID userId
 	);
 
 	@Operation(
@@ -301,9 +351,10 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteItemFromCart(
+	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteBulkItemFromCart(
 			@Parameter(description = "삭제할 장바구니 아이템 ID 목록", required = true)
-			@RequestBody @Valid DeleteBulkCartItemRequestDto request
+			@RequestBody @Valid DeleteBulkCartItemRequestDto request,
+			@LoginUser UUID userId
 	);
 
 	@Operation(
@@ -352,5 +403,7 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteAllItemsFromCart();
+	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteAllItemsFromCart(
+			@LoginUser UUID userId
+	);
 }
