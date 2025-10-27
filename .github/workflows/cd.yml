@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      tag: ${{ steps.vars.outputs.TAG }}
+      tag: ${{ steps.meta.outputs.tag }}
 
     steps:
       - name: Checkout
@@ -19,8 +19,6 @@ jobs:
       - name: Set build tag
         id: vars
         run: |
-          SHA_SHORT=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          echo "TAG=$(date +'%Y%m%d')-${SHA_SHORT}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to Harbor
         uses: docker/login-action@v3
@@ -29,13 +27,23 @@ jobs:
           username: ${{ secrets.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
+      - name: Compute image tags
+        id: meta
+        run: |
+          set -euo pipefail
+          SHA_SHORT=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          TAG=$(date +'%Y%m%d')-${SHA_SHORT}
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "fulltag=${{ secrets.IMAGE_NAME }}:${TAG}" >> "$GITHUB_OUTPUT"
+
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ steps.vars.outputs.TAG }}
+          tags: ${{ steps.meta.outputs.fulltag }}
+          provenance: false
 
   deploy:
     name: Deploy to Private EC2 via Bastion
@@ -61,7 +69,7 @@ jobs:
               -J ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }} \
               ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
             cd /home/${{ secrets.EC2_USER }}/app    # compose 파일 위치
-            sed -i "s|\(${{ secrets.IMAGE_NAME }}:\).*|\1${{ env.TAG }}|" docker-compose.yaml
+            sed -i "s|\(${{ secrets.IMAGE_NAME }}:\).*|\1${{ needs.build.outputs.tag }}|" docker-compose.yaml
             docker login docker.hyeonwoo.com -u "${{ secrets.HARBOR_USERNAME }}" -p "${{ secrets.HARBOR_PASSWORD }}"
             docker compose pull
             docker compose up -d
