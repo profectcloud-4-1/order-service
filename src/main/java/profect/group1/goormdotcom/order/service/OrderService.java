@@ -177,14 +177,14 @@ public class OrderService {
 
         
         //결제 취소 요청
-        Boolean cancelPayment = paymentClient.cancelPayment(
-            new PaymentClient.PaymentCancelRequest(orderId, orderEntity.getOrderName(), "반품")
+        // TODO: paymentKey를 OrderEntity에 추가하여 주문 생성시 저장 필요
+        // 현재는 orderId를 임시로 paymentKey로 사용
+        PaymentClient.CancelResponse cancelResponse = paymentClient.cancelPayment(
+            orderId.toString(), // TODO: 실제 paymentKey로 변경 필요
+            "반품"
         );
-        if (!cancelPayment) {
-            log.error("결제 취소 실패: orderId={}", orderId);
-            throw new IllegalStateException("결제 취소에 실패했습니다.");
-        }
-        log.info("결제 취소 완료: orderId={}", orderId);
+        log.info("결제 취소 완료: paymentKey={}, status={}", 
+            cancelResponse.paymentKey(), cancelResponse.status());
         
         // 재고 복구
         List<OrderProductEntity> products = orderProductRepository.findAll().stream()
@@ -226,14 +226,14 @@ public class OrderService {
         deliveryClient.requestReturn(new DeliveryClient.ReturnDeliveryRequest(orderId));
 
         //결제 취소 요청
-        Boolean cancelPayment = paymentClient.cancelPayment(
-            new PaymentClient.PaymentCancelRequest(orderId, order.getOrderName(), "반품")
+        // TODO: paymentKey를 OrderEntity에 추가하여 주문 생성시 저장 필요
+        // 현재는 orderId를 임시로 paymentKey로 사용
+        PaymentClient.CancelResponse cancelResponse = paymentClient.cancelPayment(
+            orderId.toString(), // TODO: 실제 paymentKey로 변경 필요
+            "반품"
         );
-        if (!cancelPayment) {
-            log.error("결제 취소 실패: orderId={}", orderId);
-            throw new IllegalStateException("결제 취소에 실패했습니다.");
-        }
-        log.info("결제 취소 완료: orderId={}", orderId);
+        log.info("결제 취소 완료: paymentKey={}, status={}", 
+            cancelResponse.paymentKey(), cancelResponse.status());
         appendOrderStatus(orderId, OrderStatus.CANCELLED);
         return orderMapper.toDomain(order);
     }

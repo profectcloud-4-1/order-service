@@ -1,8 +1,10 @@
 package profect.group1.goormdotcom.order.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
 
@@ -19,23 +21,26 @@ public interface PaymentClient {
      * @param request 결제 확인 요청
      * @return 결제 성공 여부
      */
-    @PostMapping("/api/v1/payment/verify")
-    Boolean verifyPayment(@RequestBody PaymentVerifyRequest request);
+    // @PostMapping("/api/v1/payment/verify")
+    // Boolean verifyPayment(@RequestBody PaymentVerifyRequest request);
 
     /**
      * 결제 취소 (주문 취소 시)
-     * @param request 결제 취소 요청
-     * @return 취소 성공 여부
+     * @param paymentCancelRequestDto 결제 취소 요청 DTO
+     * @param paymentKey 토스 결제 키
+     * @return 취소 응답
      */
     @PostMapping("/api/v1/payments/toss/cancel")
-    Boolean cancelPayment(@RequestBody PaymentCancelRequest request);
+    CancelResponse cancelPayment(
+        @RequestParam String paymentKey,
+        @RequestParam(required = false) String cancelReason
+    );
 
     /**
      * 결제 확인 요청 DTO
      */
     record PaymentVerifyRequest(
         UUID orderId,
-        // UUID paymentId,
         String orderName,
         int amount
     ) {}
@@ -44,9 +49,22 @@ public interface PaymentClient {
      * 결제 취소 요청 DTO
      */
     record PaymentCancelRequest(
-        UUID orderId,
-        // UUID paymentId,
-        String orderName,
-        String reason
+        String cancelReason
+    ) {}
+
+    /**
+     * 결제 취소 응답 DTO
+     */
+    record CancelResponse(
+        String paymentKey,
+        String status,
+        java.util.List<CancelEntry> cancels
+    ) {}
+
+    record CancelEntry(
+        Long cancelAmount,
+        String cancelReason,
+        String canceledAt,
+        String cancelStatus
     ) {}
 }
