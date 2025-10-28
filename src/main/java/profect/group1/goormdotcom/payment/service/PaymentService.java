@@ -149,6 +149,7 @@ public class PaymentService {
         } else {
             approvedAt = LocalDateTime.now();
         }
+        paymentEntity.setApprovedAt(approvedAt);
         paymentEntity.setPaymentKey(dto.getPaymentKey());
         paymentEntity.setStatus("PAY0001");
         paymentEntity.setApprovedAt(response.approvedAt().toLocalDateTime());
@@ -210,8 +211,8 @@ public class PaymentService {
     }
 
     @Transactional
-    public void tossPaymentCancel(PaymentCancelRequestDto dto, String paymentKey) {
-        PaymentEntity paymentEntity = paymentRepository.findByPaymentKey(paymentKey)
+    public Payment tossPaymentCancel(PaymentCancelRequestDto dto) {
+        PaymentEntity paymentEntity = paymentRepository.findByOrderId(dto.getOrderId())
                 .orElseThrow(() -> new PaymentHandler(ErrorStatus._PAYMENT_NOT_FOUND));
 
         //상태 검증
@@ -237,7 +238,9 @@ public class PaymentService {
         paymentHistoryRepository.save(PaymentHistoryMapper.toEntity(history));
 
         //트랜잭션 커밋 후 실행될 이벤트 -> PG에 결제 취소 요청
-        eventPublisher.publishEvent(new PaymentCanceledEvent(paymentEntity.getId(), paymentKey, dto));
+        eventPublisher.publishEvent(new PaymentCanceledEvent(paymentEntity.getId(), paymentEntity.getPaymentKey(), dto));
+
+        return PaymentMapper.toDomain(paymentEntity);
     }
 
     @Async

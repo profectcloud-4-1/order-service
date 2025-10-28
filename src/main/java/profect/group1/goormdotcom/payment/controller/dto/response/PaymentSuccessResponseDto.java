@@ -1,5 +1,7 @@
 package profect.group1.goormdotcom.payment.controller.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import profect.group1.goormdotcom.payment.domain.enums.PayType;
 import profect.group1.goormdotcom.payment.domain.enums.Status;
 
@@ -9,6 +11,9 @@ import java.time.OffsetDateTime;
 public record PaymentSuccessResponseDto (
         String mId,
         String paymentKey,
+
+        @JsonProperty("orderNumber")
+        @JsonAlias("orderId")
         String orderId,
         String orderName,
         String status,

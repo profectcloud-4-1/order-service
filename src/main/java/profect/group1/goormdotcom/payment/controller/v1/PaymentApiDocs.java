@@ -98,9 +98,7 @@ public interface PaymentApiDocs {
             )
     })
     profect.group1.goormdotcom.apiPayload.ApiResponse<PaymentCancelResponseDto> tossPaymentCancel(
-            @ModelAttribute @Valid profect.group1.goormdotcom.payment.controller.dto.request.PaymentCancelRequestDto paymentCancelRequestDto,
-            @Parameter(description = "토스 결제 키(PG에서 발급된 paymentKey)", required = true)
-            @RequestParam String paymentKey
+            @ModelAttribute @Valid profect.group1.goormdotcom.payment.controller.dto.request.PaymentCancelRequestDto paymentCancelRequestDto
     );
 
     @Operation(

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public record PaymentCancelResponseDto (
         String paymentKey,
-        Status status,
+        String status,
         List<CancelEntry> cancels
 ) {
     public record CancelEntry(

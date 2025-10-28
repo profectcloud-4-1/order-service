@@ -76,10 +76,9 @@ public class PaymentController implements PaymentApiDocs {
 
     @Override
     @PostMapping("/toss/cancel")
-    public ApiResponse<PaymentCancelResponseDto> tossPaymentCancel(@ModelAttribute @Valid PaymentCancelRequestDto paymentCancelRequestDto,
-                                                                   @RequestParam String paymentKey) {
-        paymentService.tossPaymentCancel(paymentCancelRequestDto, paymentKey);
-        return ApiResponse.onSuccess(new PaymentCancelResponseDto(paymentKey, Status.CANCEL_PENDING, List.of()));
+    public ApiResponse<PaymentCancelResponseDto> tossPaymentCancel(@ModelAttribute @Valid PaymentCancelRequestDto paymentCancelRequestDto) {
+        Payment payment = paymentService.tossPaymentCancel(paymentCancelRequestDto);
+        return ApiResponse.onSuccess(new PaymentCancelResponseDto(payment.getPaymentKey(), "PAY0003", List.of()));
     }
 
     @Override
