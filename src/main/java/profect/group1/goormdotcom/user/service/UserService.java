@@ -72,7 +72,7 @@ public class UserService {
     }
 
     public String login(String email, String password) {
-        UserEntity entity = repo.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        UserEntity entity = repo.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
         
         String encoded = entity.getPassword();
         if (!passwordService.isMatch(password, encoded)) throw new IllegalArgumentException("Invalid credentials");

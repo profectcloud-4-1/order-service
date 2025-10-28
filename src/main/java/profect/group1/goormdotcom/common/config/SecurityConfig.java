@@ -39,11 +39,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         // 스웨거 허용
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**", "/api-docs", "/swagger-ui.html", "/h2-console/**").permitAll()
-                        .requestMatchers("/api/v1/orders/**").permitAll()
                         // 회원가입, 로그인 허용
-                        .requestMatchers("/users/register").permitAll()
-                        .requestMatchers("/users/login").permitAll()
-                        .requestMatchers("/api/v1/delivery/address/goorm/**").hasRole("MASTER")
+                        .requestMatchers("/api/v1/users/register").permitAll()
+                        .requestMatchers("/api/v1/users/login").permitAll()
                         // 내부api 허용
                         .requestMatchers("/internal/**").permitAll()
                         .anyRequest().authenticated()

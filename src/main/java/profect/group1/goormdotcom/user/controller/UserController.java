@@ -139,8 +139,20 @@ public class UserController implements UserApiDocs {
     @PutMapping("/addresses/{addressId}")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<UUID> updateAddress(@LoginUser UUID userId, @PathVariable UUID addressId, @RequestBody UserAddressRequestDto body) {
+        try {
         UserAddress address = userAddressService.updateUserAddress(addressId, body);
         return ApiResponse.onSuccess(addressId);
+        } catch (Exception e) {
+            String code = ErrorStatus._INTERNAL_SERVER_ERROR.getCode();
+            String message = ErrorStatus._INTERNAL_SERVER_ERROR.getMessage();
+            switch (e.getMessage()) {
+                case "UserAddress not found":
+                    code = ErrorStatus._NOT_FOUND.getCode();
+                    message = ErrorStatus._NOT_FOUND.getMessage();
+                    break;
+            }
+            return ApiResponse.onFailure(String.valueOf(code), message, null);
+        }
     }
 
     @DeleteMapping("/addresses/{addressId}")
