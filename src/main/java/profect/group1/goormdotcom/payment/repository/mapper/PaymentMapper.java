@@ -23,7 +23,9 @@ public class PaymentMapper {
                 entity.getCanceledAmount(),
                 entity.getPaymentKey(),
                 entity.getApprovedAt(),
-                entity.getCanceledAt()
+                entity.getCanceledAt(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
         );
     }
 

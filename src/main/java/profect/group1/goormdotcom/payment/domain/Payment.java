@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class Payment extends BaseEntity {
+public class Payment {
 
     private UUID id;
     private UUID userId;
@@ -29,6 +29,8 @@ public class Payment extends BaseEntity {
     private String paymentKey;
     private LocalDateTime approvedAt;
     private LocalDateTime canceledAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Payment(
             UUID userId,
