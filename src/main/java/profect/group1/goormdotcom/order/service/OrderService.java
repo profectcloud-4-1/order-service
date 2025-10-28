@@ -118,21 +118,6 @@ public class OrderService {
         log.info("주문 생성 완료: orderId={}, orderName={}, status=결제대기", 
             orderEntity.getId(), orderEntity.getOrderName());
 
-        // 배송 생성
-        ApiResponse<UUID> deliveryResponse = deliveryClient.createDelivery(
-            new DeliveryClient.CreateDeliveryRequest(orderEntity.getId(), customerAddressId)
-        );
-
-        if (!deliveryResponse.getCode().equals("COMMON200")) {
-            log.error("배송 생성 실패: orderId={}, code={}, message={}", 
-                orderEntity.getId(), deliveryResponse.getCode(), deliveryResponse.getMessage());
-            appendOrderStatus(orderEntity.getId(), OrderStatus.CANCELLED);
-            throw new IllegalStateException("배송 생성에 실패했습니다: " + deliveryResponse.getMessage());
-        }
-        log.info("배송 생성 완료: orderId={}, orderName={}, deliveryId={}", 
-            orderEntity.getId(), orderEntity.getOrderName(), deliveryResponse.getResult());
-
-        return orderMapper.toDomain(orderEntity);
     }
     public Order completePayment(UUID orderId) {
         log.info("결제 완료 처리 시작: orderId={}", orderId);
@@ -153,7 +138,7 @@ public class OrderService {
 
         // 배송 시작 
         ApiResponse<UUID> startResponse = deliveryClient.startDelivery(
-            new DeliveryClient.StartDeliveryRequest(orderId)
+            new DeliveryClient.StartDeliveryRequest(orderId, order.getCustomerAddressId(), order.getCustomerAddressId())
         );
 
         if (!startResponse.getCode().equals("COMMON200")) {
@@ -190,18 +175,18 @@ public class OrderService {
         log.info("결제 취소 완료: orderId={}", orderId);
         
         // 재고 복구
-        // List<OrderProductEntity> products = orderProductRepository.findAll().stream()
-        //     .filter(p -> p.getOrder().getId().equals(orderId))
-        //     .toList();
+        List<OrderProductEntity> products = orderProductRepository.findAll().stream()
+            .filter(p -> p.getOrder().getId().equals(orderId))
+            .toList();
         
-        // for (OrderProductEntity product : products) {
-        //     StockAdjustmentResponseDto stockResponse = stockClient.increaseStock(product.getProductId(), product.getQuantity());
-        //     if (!stockResponse.status()) {
-        //         log.error("재고 복구 실패: orderId={}, productId={}", orderId, product.getProductId());
-        //         throw new IllegalStateException("재고 복구에 실패했습니다. productId=" + product.getProductId());
-        //     }
-        // }
-        // log.info("재고 복구 완료: orderId={}", orderId);
+        for (OrderProductEntity product : products) {
+            StockAdjustmentResponseDto stockResponse = stockClient.increaseStock(product.getProductId(), product.getQuantity());
+            if (!stockResponse.status()) {
+                log.error("재고 복구 실패: orderId={}, productId={}", orderId, product.getProductId());
+                throw new IllegalStateException("재고 복구에 실패했습니다. productId=" + product.getProductId());
+            }
+        }
+        log.info("재고 복구 완료: orderId={}", orderId);
 
         //배송 취소 요청
         Boolean cancelDelivery = deliveryClient.cancelDelivery(orderId);
@@ -265,16 +250,6 @@ public class OrderService {
                 return  orderMapper.toDomain(e);})
             .toList();
     }
-            // OrderResponseDto.fromEntity(e, latestStatus(e.getId())))
-            // .toList();
-    
-            // {
-            //     var current = orderStatusRepository.findTop1ByOrder_IdOrderByCreatedAtDesc(e.getId())
-            //             .orElseThrow(() -> new IllegalStateException("상태 이력이 없습니다."));
-            //     return OrderDtoMapper.toResponseDto(e, current.getStatus().getCode(), current.getStatus().getCode());
-            // }
-            // ).collect(Collectors.toList());
-        // }
  
     //최신 상태 조회
     @Transactional(readOnly = true)
