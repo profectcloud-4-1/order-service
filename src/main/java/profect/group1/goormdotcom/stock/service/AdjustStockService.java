@@ -16,15 +16,15 @@ public class AdjustStockService {
 
     private final StockRepository stockRepository;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void tryDecreaseQuantity(StockEntity entity, int requestedStockQuantity) {
         entity.decreaseQuantity(requestedStockQuantity);
-        stockRepository.saveAndFlush(entity);
+        stockRepository.save(entity);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void tryIncreaseQuantity(StockEntity entity, int requestedStockQuantity) {
         entity.increaseQuantity(requestedStockQuantity);
-        stockRepository.saveAndFlush(entity);
+        stockRepository.save(entity);
     }
 }

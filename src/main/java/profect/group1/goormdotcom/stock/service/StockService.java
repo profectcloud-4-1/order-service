@@ -70,19 +70,8 @@ public class StockService {
         StockEntity entity = stockRepository.deleteByProductId(productId);
         return StockMapper.toDomain(entity);
     }
-
-    // @Transactional
-    // public void decreaseStocks(Map<UUID, Integer> requestedQuantityMap) {
-    //     StockEntity entity;
-    //     for (UUID productId: requestedQuantityMap.keySet()) {
-    //         entity = getStockEntity(productId);
-    //         entity.decreaseQuantity(requestedQuantityMap.get(productId));
-            
-    //         stockRepository.save(entity);
-    //     }
-    // }
-
     
+    @Transactional
     public AdjustStockStatus decreaseStocks(Map<UUID, Integer> requestedQuantityMap) {
         StockEntity entity;
         for (UUID productId: requestedQuantityMap.keySet()) {
@@ -116,6 +105,7 @@ public class StockService {
         return AdjustStockStatus.SUCCESS;
     }
 
+    @Transactional
     public AdjustStockStatus increaseStocks(Map<UUID, Integer> requestedQuantityMap) {
         StockEntity entity;
         for (UUID productId: requestedQuantityMap.keySet()) {
