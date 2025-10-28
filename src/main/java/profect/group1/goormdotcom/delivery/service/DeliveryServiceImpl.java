@@ -52,15 +52,25 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 		return delivery;
 	}
+		public Delivery startDelivery(UUID orderId) {
+		Delivery delivery = this.deliveryManager.startDelivery(orderId);
+
+		return delivery;
+	}
 
 	public boolean cancel(UUID deliveryId) {
 		this.deliveryManager.cancel(deliveryId);
 		return true;
 	}
 
-	public DeliveryReturn returnDelivery(UUID deliveryId) {
-		DeliveryReturn deliveryReturn = this.deliveryManager.returnDelivery(deliveryId);
+	public DeliveryReturn returnDelivery(UUID orderId) {
+		DeliveryReturn deliveryReturn = this.deliveryManager.returnDelivery(orderId);
 		return deliveryReturn;
+	}
+
+	public boolean deleteDeliveryBeforeStart(UUID orderId) {
+		this.deliveryManager.deleteDeliveryBeforeStart(orderId);
+		return true;
 	}
 
 	public List<DeliveryAddress> getAddressesByCustomerId(UUID customerId) {

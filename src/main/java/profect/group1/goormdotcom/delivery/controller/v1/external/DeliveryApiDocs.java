@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.delivery.controller.v1;
+package profect.group1.goormdotcom.delivery.controller.v1.external;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,22 +18,15 @@ import profect.group1.goormdotcom.delivery.controller.dto.response.CustomerAddre
 import profect.group1.goormdotcom.delivery.domain.DeliveryAddress;
 import profect.group1.goormdotcom.delivery.controller.dto.request.CreateDeliveryRequestDto;
 import profect.group1.goormdotcom.delivery.controller.dto.request.CancelDeliveryRequestDto;
+import profect.group1.goormdotcom.delivery.controller.dto.request.StartDeliveryRequestDto;
 import profect.group1.goormdotcom.delivery.domain.Delivery;
+import profect.group1.goormdotcom.delivery.controller.dto.response.DeliveryResponseDto;
 
-@Tag(name = "Delivery", description = "배송 관리 API")
+@Tag(name = "Delivery (external)", description = "배송 API (외부 클라이언트 노출용)")
 public interface DeliveryApiDocs {
 
-    @Operation(summary = "반송 가능 여부 확인", description = "반송 가능 여부를 확인합니다.")
-    ApiResponse<Integer> checkCancellable(@RequestParam UUID orderId);
-
-    @Operation(summary = "배송 요청")
-    ApiResponse<Delivery> createDelivery(@RequestBody CreateDeliveryRequestDto body);
-
-    @Operation(summary = "배송 취소")
-    ApiResponse<Object> cancelDelivery(@RequestBody CancelDeliveryRequestDto body);
-
-    @Operation(summary = "반송 요청")
-    ApiResponse<Object> returnDelivery(@RequestBody CancelDeliveryRequestDto body);
+    @Operation(summary = "배송 정보 조회", description = "주문 ID를 기반으로 배송 정보를 조회합니다.")
+    ApiResponse<DeliveryResponseDto> getDeliveryByOrder(@RequestParam UUID orderId);
 
     @Operation(summary = "내 배송지 목록 조회", security = { @SecurityRequirement(name = "bearerAuth") })
     ApiResponse<CustomerAddressListResponseDto> getMyAddresses(HttpServletRequest request);

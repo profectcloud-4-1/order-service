@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.delivery.controller.v1;
+package profect.group1.goormdotcom.delivery.controller.v1.external;
 
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -26,6 +26,7 @@ import profect.group1.goormdotcom.delivery.controller.dto.request.CreateAddressR
 import jakarta.servlet.http.HttpServletRequest;
 import io.jsonwebtoken.Claims;
 import profect.group1.goormdotcom.delivery.controller.dto.request.CreateDeliveryRequestDto;
+import profect.group1.goormdotcom.delivery.controller.dto.request.StartDeliveryRequestDto;
 import profect.group1.goormdotcom.delivery.controller.dto.request.CancelDeliveryRequestDto;
 import profect.group1.goormdotcom.delivery.controller.dto.response.DeliveryResponseDto;
 
@@ -43,62 +44,6 @@ public class DeliveryController implements DeliveryApiDocs {
 		return ApiResponse.onSuccess(response);
 	}
 
-
-	@GetMapping("/check/cancellable")
-	public ApiResponse<Integer> checkCancellable(@RequestParam UUID orderId) {
-		Integer canReturn = this.service.canReturn(orderId);
-		return ApiResponse.onSuccess(canReturn);
-	}
-
-    @PostMapping
-	public ApiResponse<Delivery> createDelivery(@RequestBody @Valid CreateDeliveryRequestDto body) {
-		Delivery delivery = this.service.createDelivery(body.getOrderId(), body.getCustomerAddressId());
-		return ApiResponse.onSuccess(delivery);
-	}
-
-    @PostMapping("/cancel")
-	public ApiResponse<Object> cancelDelivery(@RequestBody @Valid CancelDeliveryRequestDto body) {
-		try {
-			this.service.cancel(body.getOrderId());
-			return ApiResponse.onSuccess(null);
-		} catch (Exception e) {
-			String code = ErrorStatus._INTERNAL_SERVER_ERROR.getCode();
-			String message = ErrorStatus._INTERNAL_SERVER_ERROR.getMessage();
-			switch (e.getMessage()) {
-				case "Delivery not found":
-					code = ErrorStatus._NOT_FOUND.getCode();
-					message = "배송 정보를 찾을 수 없습니다.";
-					break;
-				case "Delivery cannot be cancelled":
-					code = ErrorStatus._FORBIDDEN.getCode();
-					message = "현재 취소 가능한 상태가 아닙니다.";
-					break;
-			}
-			return ApiResponse.onFailure(String.valueOf(code), message, null);
-		}
-	}
-
-    @PostMapping("/return")
-	public ApiResponse<Object> returnDelivery(@RequestBody @Valid CancelDeliveryRequestDto body) {
-		try {
-			this.service.returnDelivery(body.getOrderId());
-			return ApiResponse.onSuccess(null);
-		} catch (Exception e) {
-			String code = ErrorStatus._INTERNAL_SERVER_ERROR.getCode();
-			String message = ErrorStatus._INTERNAL_SERVER_ERROR.getMessage();
-			switch (e.getMessage()) {
-				case "Delivery not found":
-					code = ErrorStatus._NOT_FOUND.getCode();
-					message = "배송 정보를 찾을 수 없습니다.";
-					break;
-				case "Delivery cannot be returned":
-					code = ErrorStatus._FORBIDDEN.getCode();
-					message = "현재 반송 가능한 상태가 아닙니다.";
-					break;
-			}
-			return ApiResponse.onFailure(String.valueOf(code), message, null);
-		}
-	}
 
 	@GetMapping("/address/mine")
 	public ApiResponse<CustomerAddressListResponseDto> getMyAddresses(

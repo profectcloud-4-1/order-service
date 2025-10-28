@@ -101,7 +101,7 @@ public class DeliveryManager {
         // insert delivery
         DeliveryEntity deliveryEntity = DeliveryEntity.builder()
             .orderId(orderId)
-            .status(DeliveryStatus.PENDING.getCode())
+            .status(DeliveryStatus.CREATED.getCode())
             .build();
         
         this.repo.save(deliveryEntity);
@@ -127,6 +127,17 @@ public class DeliveryManager {
         delivery.setSenderAddress(this.deliveryAddressMapper.toDomainOfSender(address));
         delivery.setReceiverAddress(this.deliveryAddressMapper.toDomainOfReceiver(address));
 
+        return delivery;
+    }
+    @Transactional
+    public Delivery startDelivery(final UUID orderId) {
+        DeliveryEntity deliveryEntity = this.repo.findByOrderId(orderId).orElseThrow(() -> new IllegalArgumentException("Delivery not found"));
+        if (!DeliveryStatus.CREATED.getCode().equals(deliveryEntity.getStatus())) throw new IllegalArgumentException("Delivery is not created");
+
+        deliveryEntity.setStatus(DeliveryStatus.PENDING.getCode());
+        this.repo.save(deliveryEntity);
+        UUID deliveryId = deliveryEntity.getId();
+
         // insert step history
         DeliveryStepHistoryEntity stepHistoryEntity = DeliveryStepHistoryEntity.builder()
             .deliveryId(deliveryId)
@@ -143,7 +154,7 @@ public class DeliveryManager {
             DeliveryStepType.DONE
         ));
 
-        return delivery;
+        return DeliveryMapper.toDomain(deliveryEntity);
     }
 
     @Transactional
@@ -159,11 +170,13 @@ public class DeliveryManager {
     }
 
     @Transactional
-    public DeliveryReturn returnDelivery(final UUID deliveryId) {
-        DeliveryEntity entity = this.repo.findById(deliveryId).orElseThrow(() -> new IllegalArgumentException("Delivery not found"));
+    public DeliveryReturn returnDelivery(final UUID orderId) {
+        DeliveryEntity entity = this.repo.findByOrderId(orderId).orElseThrow(() -> new IllegalArgumentException("Delivery not found"));
 
         Delivery delivery = DeliveryMapper.toDomain(entity);
         if (delivery.canReturn() != 2) throw new IllegalArgumentException("Delivery cannot be returned");
+        
+        UUID deliveryId = entity.getId();
 
         DeliveryAddressEntity deliveryAddressEntity = this.addressRepo.findByDeliveryId(deliveryId).orElseThrow(() -> new IllegalArgumentException("Delivery address not found"));
 
@@ -214,6 +227,12 @@ public class DeliveryManager {
         ));
 
         return deliveryReturn;
+    }
+
+    public void deleteDeliveryBeforeStart(UUID orderId) {
+        DeliveryEntity entity = this.repo.findByOrderId(orderId).orElseThrow(() -> new IllegalArgumentException("Delivery not found"));
+        if (!DeliveryStatus.CREATED.getCode().equals(entity.getStatus())) throw new IllegalArgumentException("Delivery is not created");
+        this.repo.deleteById(entity.getId());
     }
 
     public DeliveryAddress createCustomerAddress(UUID customerId, String address, String addressDetail, String zipcode, String phone, String name) {
@@ -307,7 +326,6 @@ public class DeliveryManager {
                         if (stepType == DeliveryStepType.DONE) {
                             delivery.setStatus(DeliveryStatus.FINISH.getCode());
                             this.repo.save(delivery);
-                            // TODO: order에 배송완료 통보
                         }
 
 

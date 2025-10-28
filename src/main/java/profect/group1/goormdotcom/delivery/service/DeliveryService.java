@@ -26,13 +26,21 @@ public interface DeliveryService {
 	 * @return 배송 정보
 	 */
 	public Delivery createDelivery(UUID orderId, UUID customerAddressId);
+	/** 
+	 * 배송 시작
+	 * @param orderId 주문 ID
+	 * @return 배송 정보
+	 */
+	public Delivery startDelivery(UUID orderId);
 
 	/** 
 	 * 배송 반송 (배송 완료된 경우만 사용, 배송완료가 아닌 경우 예외 발생)
-	 * @param deliveryId 배송 ID
+	 * @param orderId 주문 ID
 	 * @return 정상처리여부
 	 */
-	public DeliveryReturn returnDelivery(UUID deliveryId);
+	public DeliveryReturn returnDelivery(UUID orderId);
+
+	public boolean deleteDeliveryBeforeStart(UUID orderId);
 
 	/**
 	 * 고객 배송지 목록 조회
