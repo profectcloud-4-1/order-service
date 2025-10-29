@@ -257,12 +257,6 @@ public class ReviewService {
         );
 
 
-        // 7. 응답 반환
-        /*String finalImageUrl = request.getImageUrl() != null
-                ? request.getImageUrl()
-                : existingImageUrl;
-        Review savedReview = ReviewMapper.toDomain(updatedEntity);
-        return ReviewDtoMapper.toResponseDto(savedReview);*/
 
         Review savedReview = ReviewMapper.toDomain(updatedEntity);
         return ReviewDtoMapper.toResponseDto(savedReview);
