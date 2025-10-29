@@ -1,25 +1,31 @@
 package profect.group1.goormdotcom.stock.service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.StaleObjectStateException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import profect.group1.goormdotcom.stock.config.RetryConfig;
 import profect.group1.goormdotcom.stock.domain.Stock;
+import profect.group1.goormdotcom.stock.domain.exception.InsufficientStockException;
 import profect.group1.goormdotcom.stock.repository.StockRepository;
 import profect.group1.goormdotcom.stock.repository.entity.StockEntity;
 import profect.group1.goormdotcom.stock.repository.mapper.StockMapper;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StockService {
     
+    private final AdjustStockService adjustStockService;
     private final StockRepository stockRepository;
+    private final RetryConfig retryConfig;
 
     private StockEntity getStockEntity(UUID productId) {
         Optional<StockEntity> stockEntity = stockRepository.findByProductId(productId);
@@ -60,20 +66,35 @@ public class StockService {
         StockEntity entity = stockRepository.deleteByProductId(productId);
         return StockMapper.toDomain(entity);
     }
-
+    
     @Transactional
     public Boolean decreaseStocks(Map<UUID, Integer> requestedQuantityMap) {
         StockEntity entity;
         for (UUID productId: requestedQuantityMap.keySet()) {
-            entity = getStockEntity(productId);
-            try {
-                entity.decreaseQuantity(requestedQuantityMap.get(productId));
+            int retryCount = 0;
             
-                // TODO: 동시성 제어 구현 (낙관적 락 및 재확인 구현)
-            
-                stockRepository.save(entity);
-            } catch (Exception e) {
-                return false;
+            while (true) {
+                try {
+                    entity = getStockEntity(productId);
+                    adjustStockService.tryDecreaseQuantity(entity, requestedQuantityMap.get(productId));
+                    break;
+                } catch (InsufficientStockException e) {
+                    throw e;
+                } catch (ObjectOptimisticLockingFailureException | StaleObjectStateException e) {
+                    retryCount += 1;
+
+                    if (retryCount > retryConfig.maxRetries()) {
+                        log.info("재고 차감 실패");
+                        throw e;
+                    }
+
+                    try {
+                        Thread.sleep(retryConfig.baseOffMs());
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return false;
+                    }
+                }
             }
         }
         return true;
@@ -83,14 +104,29 @@ public class StockService {
     public Boolean increaseStocks(Map<UUID, Integer> requestedQuantityMap) {
         StockEntity entity;
         for (UUID productId: requestedQuantityMap.keySet()) {
-            entity = getStockEntity(productId);
-            entity.increaseQuantity(requestedQuantityMap.get(productId));
+            int retryCount = 0;
             
-            // TODO: 동시성 제어 구현 (낙관적 락 및 재확인 구현)
-            try {
-                stockRepository.save(entity);
-            } catch (Exception e) {
-                return false;
+            while (true) {
+                try {
+                    entity = getStockEntity(productId);
+                    adjustStockService.tryIncreaseQuantity(entity, requestedQuantityMap.get(productId));
+                    break;
+                } catch (ObjectOptimisticLockingFailureException | StaleObjectStateException e) {
+                    retryCount += 1;
+
+                    if (retryCount > retryConfig.maxRetries()) {
+                        log.info("재고 증가 실패");
+                        // return AdjustStockStatus.FAILED;
+                        throw e;
+                    }
+
+                    try {
+                        Thread.sleep(retryConfig.baseOffMs());
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return false;
+                    }
+                }
             }
         }
         return true;
