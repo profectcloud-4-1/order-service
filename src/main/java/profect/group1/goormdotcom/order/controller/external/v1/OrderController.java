@@ -51,4 +51,15 @@ public class OrderController implements OrderApiDocs{
     public ApiResponse<Order> getOne(@PathVariable UUID id){
         return ApiResponse.onSuccess(orderService.getOne(id));
     }
+
+
+    //리뷰 서비스 orderid 조회
+    @GetMapping("/search")
+    public ResponseEntity<UUID> getOrderIdByCustomerAndProduct(
+            @RequestParam UUID customerId,
+            @RequestParam UUID productId) {
+        UUID orderId = orderService.getOrderIdByUserAndProduct(customerId, productId);
+        return ResponseEntity.ok(orderId);
+    }
+
 }
