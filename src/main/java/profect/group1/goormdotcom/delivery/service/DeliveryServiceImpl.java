@@ -23,7 +23,7 @@ import profect.group1.goormdotcom.delivery.domain.DeliveryAddress;
 import profect.group1.goormdotcom.delivery.domain.DeliveryReturn;
 import profect.group1.goormdotcom.delivery.domain.DeliveryManager;
 import profect.group1.goormdotcom.delivery.domain.DeliveryAddress;
-import profect.group1.goormdotcom.delivery.controller.dto.request.CreateAddressRequestDto;
+import profect.group1.goormdotcom.delivery.controller.external.v1.dto.request.CreateAddressRequestDto;
 
 
 @Service
