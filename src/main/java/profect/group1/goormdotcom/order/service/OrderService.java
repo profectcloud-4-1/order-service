@@ -10,9 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.apiPayload.exceptions.handler.OrderHandler;
 import profect.group1.goormdotcom.order.client.DeliveryClient;
 import profect.group1.goormdotcom.order.client.PaymentClient; //?
-import profect.group1.goormdotcom.order.client.dto.DeliveryRequestDto;
+import profect.group1.goormdotcom.order.client.dto.DeliveryStartResponseDto;
 import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentRequestDto;
 import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentRequestItemDto;
 import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentResponseDto;
@@ -151,7 +152,7 @@ public class OrderService {
 
         // 배송 시작 
         try {
-            ApiResponse<DeliveryRequestDto> response = deliveryClient.startDelivery(new DeliveryClient.StartDeliveryRequest(
+            ApiResponse<DeliveryStartResponseDto> response = deliveryClient.startDelivery(new DeliveryClient.StartDeliveryRequest(
                     orderId,
                     addressEntity.getCustomerId(),
                     addressEntity.getAddress(), addressEntity.getAddressDetail(),
@@ -231,7 +232,7 @@ public class OrderService {
         // TODO: paymentKey를 OrderEntity에 추가하여 주문 생성시 저장 필요
         // 현재는 orderId를 임시로 paymentKey로 사용
         PaymentClient.CancelResponse cancelResponse = paymentClient.cancelPayment(
-            orderId.toString(), // TODO: 실제 paymentKey로 변경 필요
+            orderId, // TODO: 실제 paymentKey로 변경 필요
             "반품"
         );
         log.info("결제 취소 완료: paymentKey={}, status={}", 
@@ -281,7 +282,7 @@ public class OrderService {
         // TODO: paymentKey를 OrderEntity에 추가하여 주문 생성시 저장 필요
         // 현재는 orderId를 임시로 paymentKey로 사용
         PaymentClient.CancelResponse cancelResponse = paymentClient.cancelPayment(
-            orderId.toString(), // TODO: 실제 paymentKey로 변경 필요
+            orderId,
             "반품"
         );
         log.info("결제 취소 완료: paymentKey={}, status={}", 
@@ -331,4 +332,16 @@ public class OrderService {
                 .getId();
     }
 
+    @Transactional
+    public void deliveryReturnCompleted(UUID orderId) {
+        OrderEntity order = findOrderOrThrow(orderId);
+
+        if(order.getStatus().equals(OrderStatus.COMPLETED)) {
+            throw new IllegalStateException("이미 반송된 주문입니다.");
+        }
+
+        appendOrderStatus(orderId, OrderStatus.CANCELLED);
+
+        orderRepository.save(order);
+    }
 }

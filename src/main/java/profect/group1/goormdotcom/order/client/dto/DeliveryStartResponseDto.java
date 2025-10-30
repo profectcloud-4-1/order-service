@@ -2,7 +2,7 @@ package profect.group1.goormdotcom.order.client.dto;
 
 import java.util.UUID;
 
-public record DeliveryRequestDto(
+public record DeliveryStartResponseDto(
         UUID id,
         UUID orderId,
         String status,

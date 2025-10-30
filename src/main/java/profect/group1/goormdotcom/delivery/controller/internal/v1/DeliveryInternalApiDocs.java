@@ -16,6 +16,8 @@ import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.delivery.controller.internal.v1.dto.request.CancelDeliveryRequestDto;
 import profect.group1.goormdotcom.delivery.controller.internal.v1.dto.request.StartDeliveryRequestDto;
 import profect.group1.goormdotcom.delivery.domain.Delivery;
+import profect.group1.goormdotcom.delivery.domain.DeliveryReturn;
+
 import java.lang.Boolean;
 
 @Tag(name = "Delivery (internal)", description = "배송 API (내부서비스간 통신용)")

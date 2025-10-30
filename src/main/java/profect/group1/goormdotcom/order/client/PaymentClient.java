@@ -32,7 +32,7 @@ public interface PaymentClient {
      */
     @PostMapping("/api/v1/payments/toss/cancel")
     CancelResponse cancelPayment(
-        @RequestParam String paymentKey,
+        @RequestParam UUID orderId,
         @RequestParam(required = false) String cancelReason
     );
 
