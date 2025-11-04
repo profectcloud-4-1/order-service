@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.payment.controller.external.v1.dto.request.*;
 import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentCancelResponseDto;
 import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentResponseDto;

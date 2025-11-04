@@ -11,13 +11,13 @@ import profect.group1.goormdotcom.user.controller.external.v1.dto.request.LoginR
 import profect.group1.goormdotcom.user.controller.external.v1.dto.response.LoginResponseDto;
 import profect.group1.goormdotcom.user.service.dto.CreateUserDto;
 import profect.group1.goormdotcom.user.domain.User;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import profect.group1.goormdotcom.apiPayload.code.status.ErrorStatus;
+import profect.group1.goormdotcom.common.apiPayload.code.status.ErrorStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;

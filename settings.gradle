@@ -1,2 +1,31 @@
-rootProject.name = 'goormdotcom'
-// include() ':ecommerce-api'
+rootProject.name = 'order-service'
+
+// 현재: 단일 Git Repository 내 모놀로식 아키텍처
+// 전환 전략: 점진적으로 멀티모듈로 변환
+//
+// Phase 1: 모놀로식 (현재) ✅
+//   - 모든 도메인이 단일 모듈에 패키지 단위로 존재
+//   - 도메인: order, cart, review, product, user, delivery, payment, stock
+//
+// Phase 2: 멀티모듈 (목표) 🎯
+//   - 하나의 Git Repository 유지
+//   - Gradle 멀티모듈로 각 도메인을 독립 모듈화
+//
+// Phase 3: 독립 배포 (고급)
+//   - 각 모듈 독립 Docker 이미지
+//   - 독립 CI/CD 파이프라인
+//
+// Phase 4: 완전 분리 (선택적)
+//   - 필요시에만 별도 Git Repository로 분리
+//
+// TODO: Phase 2 전환시 아래 주석 해제
+// include 'order-service'
+// include 'cart-service'
+// include 'review-service'
+// include 'product-service'
+// include 'user-service'
+// include 'delivery-service'
+// include 'payment-service'
+// include 'stock-service'
+// include 'api-gateway'  // API Gateway 모듈 (로컬 환경용)
+// include 'common'  // 공통 라이브러리 모듈

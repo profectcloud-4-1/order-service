@@ -1,22 +1,24 @@
 package profect.group1.goormdotcom.review.service;
 
-import feign.FeignException;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-//import lombok.Value;
-import org.springframework.beans.factory.annotation.Value;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
+
+import feign.FeignException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import profect.group1.goormdotcom.review.controller.external.v1.dto.CreateReviewRequestDto;
 import profect.group1.goormdotcom.review.controller.external.v1.dto.ProductReviewListResponseDto;
 import profect.group1.goormdotcom.review.controller.external.v1.dto.ReviewResponseDto;
@@ -28,11 +30,9 @@ import profect.group1.goormdotcom.review.repository.ReviewRepository;
 import profect.group1.goormdotcom.review.repository.entity.ReviewEntity;
 import profect.group1.goormdotcom.review.repository.entity.ReviewImageEntity;
 import profect.group1.goormdotcom.review.repository.mapper.ReviewMapper;
-
-import java.awt.*;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import profect.group1.goormdotcom.review.infrastructure.client.PresignedClient;
+import profect.group1.goormdotcom.review.infrastructure.client.OrderClient;
+import profect.group1.goormdotcom.review.infrastructure.client.dto.ObjectKeyResponseDto;
 
 
 @Slf4j
@@ -171,10 +171,10 @@ public class ReviewService {
 
                         try {
                             // ✅ 여기서 fileId로 ObjectKey 조회
-                            ResponseEntity<ObjectKeyResponseDto> response =
+                            ApiResponse<ObjectKeyResponseDto> response =
                                     presignedClient.getObjectKey(imageEntity.getFileId());
 
-                            ObjectKeyResponseDto objectKeyResponse = response.getBody();
+                            ObjectKeyResponseDto objectKeyResponse = response.getResult();
 
                             // ✅ ObjectKey를 받아서 CloudFront URL 생성
                             if (objectKeyResponse != null && objectKeyResponse.getObjectKey() != null) {

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.UUID;
 import profect.group1.goormdotcom.user.controller.auth.LoginUser;
 
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.request.EditRequestDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.request.ListRequestDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.request.LoginRequestDto;

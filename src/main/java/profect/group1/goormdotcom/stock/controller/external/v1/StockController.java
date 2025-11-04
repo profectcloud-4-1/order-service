@@ -12,8 +12,8 @@ import profect.group1.goormdotcom.stock.controller.external.v1.dto.StockRequestD
 import profect.group1.goormdotcom.stock.controller.mapper.StockDtoMapper;
 import profect.group1.goormdotcom.stock.domain.Stock;
 import profect.group1.goormdotcom.stock.service.StockService;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
-import profect.group1.goormdotcom.apiPayload.code.status.SuccessStatus;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.code.status.SuccessStatus;
 
 import java.util.UUID;
 

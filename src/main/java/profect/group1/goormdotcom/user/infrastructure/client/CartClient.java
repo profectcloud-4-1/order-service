@@ -7,7 +7,7 @@ import java.util.UUID;
 // import profect.group1.goormdotcom.common.config.FeignAuthConfig;
 // import profect.group1.goormdotcom.common.config.FeignRetryConfig;
 import org.springframework.http.HttpHeaders;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 
 @FeignClient(
 		name = "user-to-cart",

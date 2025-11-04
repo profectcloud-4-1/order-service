@@ -5,9 +5,8 @@ import java.util.UUID;
 import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderRequestDto;
 import profect.group1.goormdotcom.order.service.OrderService;
 import profect.group1.goormdotcom.order.domain.Order;
@@ -55,11 +54,11 @@ public class OrderController implements OrderApiDocs{
 
     //리뷰 서비스 orderid 조회
     @GetMapping("/search")
-    public ResponseEntity<UUID> getOrderIdByCustomerAndProduct(
+    public ApiResponse<UUID> getOrderIdByCustomerAndProduct(
             @RequestParam UUID customerId,
             @RequestParam UUID productId) {
         UUID orderId = orderService.getOrderIdByUserAndProduct(customerId, productId);
-        return ResponseEntity.ok(orderId);
+        return ApiResponse.onSuccess(orderId);
     }
 
 }

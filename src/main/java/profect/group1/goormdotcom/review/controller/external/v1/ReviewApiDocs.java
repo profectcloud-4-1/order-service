@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -32,11 +31,11 @@ public interface ReviewApiDocs {
                     mediaType = "application/json",
                     examples = @ExampleObject(
                             name = "success",
-                            value = "{\"code\":\"COMMON201\",\"message\":\"리뷰 작성 성공\"}"
+                            value = "{\"code\":\"COMMON201\",\"message\":\"생성되었습니다.\"}"
                     )
             )
     )
-    ResponseEntity<ReviewResponseDto> createReview(
+    profect.group1.goormdotcom.common.apiPayload.ApiResponse<ReviewResponseDto> createReview(
             @Parameter(description = "리뷰 작성 요청 데이터")
             @RequestBody CreateReviewRequestDto request,
 
@@ -56,11 +55,11 @@ public interface ReviewApiDocs {
                     mediaType = "application/json",
                     examples = @ExampleObject(
                             name = "success",
-                            value = "{\"code\":\"COMMON200\",\"message\":\"리뷰 수정 성공\"}"
+                            value = "{\"code\":\"COMMON200\",\"message\":\"성공입니다.\"}"
                     )
             )
     )
-    ResponseEntity<ReviewResponseDto> updateReview(
+    profect.group1.goormdotcom.common.apiPayload.ApiResponse<ReviewResponseDto> updateReview(
             @Parameter(description = "리뷰 ID") @PathVariable UUID reviewId,
             @Parameter(description = "수정할 리뷰 데이터") @RequestBody UpdatedReviewRequestDto request,
             @Parameter(description = "유저 ID (X-User-Id 헤더)") @RequestHeader("X-User-Id") UUID userId
@@ -72,17 +71,17 @@ public interface ReviewApiDocs {
             security = { @SecurityRequirement(name = "bearerAuth") }
     )
     @ApiResponse(
-            responseCode = "204",
+            responseCode = "200",
             description = "리뷰 삭제 성공",
             content = @Content(
                     mediaType = "application/json",
                     examples = @ExampleObject(
                             name = "success",
-                            value = "{\"code\":\"COMMON204\",\"message\":\"리뷰 삭제 성공\"}"
+                            value = "{\"code\":\"COMMON200\",\"message\":\"성공입니다.\"}"
                     )
             )
     )
-    ResponseEntity<Void> deleteReview(
+    profect.group1.goormdotcom.common.apiPayload.ApiResponse<Void> deleteReview(
             @Parameter(description = "리뷰 ID") @PathVariable UUID reviewId,
             @Parameter(description = "유저 ID (X-User-Id 헤더, 없으면 더미 값 사용)")
             @RequestHeader(value = "X-User-Id", required = false) UUID userId
@@ -100,11 +99,11 @@ public interface ReviewApiDocs {
                     mediaType = "application/json",
                     examples = @ExampleObject(
                             name = "success",
-                            value = "{\"code\":\"COMMON200\",\"message\":\"리뷰 목록 조회 성공\"}"
+                            value = "{\"code\":\"COMMON200\",\"message\":\"성공입니다.\"}"
                     )
             )
     )
-    ResponseEntity<ProductReviewListResponseDto> getProductReviews(
+    profect.group1.goormdotcom.common.apiPayload.ApiResponse<ProductReviewListResponseDto> getProductReviews(
             @Parameter(description = "상품 ID") @PathVariable UUID productId,
             @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 크기 (기본값: 10)") @RequestParam(defaultValue = "10") int size,

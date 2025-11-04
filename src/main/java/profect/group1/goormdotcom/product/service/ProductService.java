@@ -6,12 +6,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.product.domain.Product;
 import profect.group1.goormdotcom.product.domain.ProductImage;
 import profect.group1.goormdotcom.product.infrastructure.client.PresignedService.PresignedClient;
@@ -160,8 +159,8 @@ public class ProductService {
         // TODO: presigned server에서 여러 이미지의 object key를 한번에 조회할 수 있는 api가 필요할 듯
         for (ProductImageEntity imageEntity: imageEntities) {
             
-            ResponseEntity<ObjectKeyResponse> response = presignedClient.getObjectKey(imageEntity.getId());
-            ObjectKeyResponse objectKeyResponse = response.getBody();
+            ApiResponse<ObjectKeyResponse> response = presignedClient.getObjectKey(imageEntity.getId());
+            ObjectKeyResponse objectKeyResponse = response.getResult();
             if (objectKeyResponse == null) {
                 // TODO: 이미지가 없을 경우 어떻게 처리? 
                 // 기본 이미지가 있어야 할 것 같다. (goorm 이미지?)

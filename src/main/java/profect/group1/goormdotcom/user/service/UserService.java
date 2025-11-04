@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import profect.group1.goormdotcom.user.infrastructure.client.CartClient;
 import java.util.UUID;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.user.repository.UserRepository;
 import profect.group1.goormdotcom.user.repository.entity.UserEntity;
 import profect.group1.goormdotcom.user.domain.mapper.UserMapper;

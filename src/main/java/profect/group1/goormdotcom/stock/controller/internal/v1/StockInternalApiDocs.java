@@ -29,7 +29,7 @@ public interface StockInternalApiDocs {
             description = "재고 차감 처리 결과",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class),
+                schema = @Schema(implementation = profect.group1.goormdotcom.common.apiPayload.ApiResponse.class),
                 examples = @ExampleObject(
                     name = "성공 예시",
                     value = """
@@ -54,7 +54,7 @@ public interface StockInternalApiDocs {
             content = @Content(mediaType = "application/json")
         )
     })
-    profect.group1.goormdotcom.apiPayload.ApiResponse<StockAdjustmentResponseDto> decreaseStocks(
+    profect.group1.goormdotcom.common.apiPayload.ApiResponse<StockAdjustmentResponseDto> decreaseStocks(
         @RequestBody @Valid StockAdjustmentRequestDto stockAdjustmentRequestDto
     );
 
@@ -68,7 +68,7 @@ public interface StockInternalApiDocs {
             description = "재고 증가 처리 결과",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class),
+                schema = @Schema(implementation = profect.group1.goormdotcom.common.apiPayload.ApiResponse.class),
                 examples = @ExampleObject(
                     name = "성공 예시",
                     value = """
@@ -88,7 +88,7 @@ public interface StockInternalApiDocs {
             )
         )
     })
-    profect.group1.goormdotcom.apiPayload.ApiResponse<StockAdjustmentResponseDto> increaseStocks(
+    profect.group1.goormdotcom.common.apiPayload.ApiResponse<StockAdjustmentResponseDto> increaseStocks(
         @RequestBody @Valid StockAdjustmentRequestDto stockAdjustmentRequestDto
     );
 }

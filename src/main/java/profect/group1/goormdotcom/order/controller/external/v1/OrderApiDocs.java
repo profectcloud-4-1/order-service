@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderRequestDto;
 import profect.group1.goormdotcom.order.domain.Order;
 import profect.group1.goormdotcom.user.controller.auth.LoginUser;

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import profect.group1.goormdotcom.apiPayload.code.status.ErrorStatus;
-import profect.group1.goormdotcom.apiPayload.exceptions.handler.PaymentHandler;
+import profect.group1.goormdotcom.common.apiPayload.code.status.ErrorStatus;
+import profect.group1.goormdotcom.common.apiPayload.exceptions.handler.PaymentHandler;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

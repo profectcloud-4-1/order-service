@@ -3,9 +3,9 @@ package profect.group1.goormdotcom.user.infrastructure.client;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.util.UUID;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 // import org.springframework.cloud.openfeign.Fallback;
-import profect.group1.goormdotcom.apiPayload.code.status.ErrorStatus;
+import profect.group1.goormdotcom.common.apiPayload.code.status.ErrorStatus;
 
 @Slf4j
 @Component

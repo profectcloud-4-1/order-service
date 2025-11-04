@@ -61,7 +61,7 @@ public interface CartInternalApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<UUID> createCart(
+	profect.group1.goormdotcom.common.apiPayload.ApiResponse<UUID> createCart(
 			@LoginUser UUID userId
 	);
 

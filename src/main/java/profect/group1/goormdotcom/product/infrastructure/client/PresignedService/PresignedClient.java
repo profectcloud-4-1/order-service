@@ -3,11 +3,11 @@ package profect.group1.goormdotcom.product.infrastructure.client.PresignedServic
 import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.common.config.FeignConfig;
 import profect.group1.goormdotcom.product.infrastructure.client.PresignedService.dto.ObjectKeyResponse;
 
@@ -19,8 +19,8 @@ import profect.group1.goormdotcom.product.infrastructure.client.PresignedService
 public interface PresignedClient {
     
     @PostMapping("/api/files/{fileId}/confirm")
-    public ResponseEntity<Void> confirmUpload(@PathVariable UUID fileId);
+    ApiResponse<Void> confirmUpload(@PathVariable UUID fileId);
 
     @GetMapping("/api/files/{fileId}/url")
-    public ResponseEntity<ObjectKeyResponse> getObjectKey(@PathVariable UUID fileId);
+    ApiResponse<ObjectKeyResponse> getObjectKey(@PathVariable UUID fileId);
 }

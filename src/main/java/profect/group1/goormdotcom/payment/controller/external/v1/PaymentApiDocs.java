@@ -39,10 +39,10 @@ public interface PaymentApiDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청",
-                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class))
+                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.common.apiPayload.ApiResponse.class))
             )
     })
-    profect.group1.goormdotcom.apiPayload.ApiResponse<PaymentSuccessResponseDto> tossPaymentSuccess(
+    profect.group1.goormdotcom.common.apiPayload.ApiResponse<PaymentSuccessResponseDto> tossPaymentSuccess(
             @ModelAttribute @Valid PaymentSuccessRequestDto paymentSuccessRequestDto,
             @RequestParam UUID userId
     );
@@ -56,10 +56,10 @@ public interface PaymentApiDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청",
-                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class))
+                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.common.apiPayload.ApiResponse.class))
             )
     })
-    profect.group1.goormdotcom.apiPayload.ApiResponse<Void> tossPaymentFail(
+    profect.group1.goormdotcom.common.apiPayload.ApiResponse<Void> tossPaymentFail(
             @ModelAttribute @Valid PaymentFailRequestDto paymentFailRequestDto
     );
 
@@ -72,10 +72,10 @@ public interface PaymentApiDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청",
-                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class))
+                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.common.apiPayload.ApiResponse.class))
             )
     })
-    profect.group1.goormdotcom.apiPayload.ApiResponse<PaymentCancelResponseDto> tossPaymentCancel(
+    profect.group1.goormdotcom.common.apiPayload.ApiResponse<PaymentCancelResponseDto> tossPaymentCancel(
             @ModelAttribute @Valid profect.group1.goormdotcom.payment.controller.external.v1.dto.request.PaymentCancelRequestDto paymentCancelRequestDto
     );
 
@@ -91,13 +91,13 @@ public interface PaymentApiDocs {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공입니다"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
-                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class))),
+                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.common.apiPayload.ApiResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증 실패",
-                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class))),
+                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.common.apiPayload.ApiResponse.class))),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류",
-                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class)))
+                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.common.apiPayload.ApiResponse.class)))
     })
-    profect.group1.goormdotcom.apiPayload.ApiResponse<
+    profect.group1.goormdotcom.common.apiPayload.ApiResponse<
             profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentSearchResponseDto> searchPayment(
             @ModelAttribute PaymentSearchRequestDto paymentSearchRequestDto,
             Pageable pageable

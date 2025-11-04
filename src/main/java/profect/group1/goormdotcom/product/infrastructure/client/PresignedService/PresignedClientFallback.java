@@ -2,22 +2,30 @@ package profect.group1.goormdotcom.product.infrastructure.client.PresignedServic
 
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.product.infrastructure.client.PresignedService.dto.ObjectKeyResponse;
 
-public class PresignedClientFallback {
+@Component("productPresignedClientFallback")
+public class PresignedClientFallback implements PresignedClient {
     
-    @PostMapping("/api/files/{fileId}/confirm")
-    public ResponseEntity<Void> confirmUpload(@PathVariable UUID fileId) {
-        return ResponseEntity.internalServerError().build();
+    @Override
+    public ApiResponse<Void> confirmUpload(UUID fileId) {
+        return ApiResponse.onFailure(
+            HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+            "Presigned 서비스가 일시적으로 사용할 수 없습니다.",
+            null
+        );
     }
 
-    @GetMapping("/api/files/{fileId}/url")
-    public ResponseEntity<ObjectKeyResponse> getObjectKey(@PathVariable UUID fileId) {
-        return ResponseEntity.internalServerError().build();
+    @Override
+    public ApiResponse<ObjectKeyResponse> getObjectKey(UUID fileId) {
+        return ApiResponse.onFailure(
+            HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+            "Presigned 서비스가 일시적으로 사용할 수 없습니다.",
+            null
+        );
     }
 }

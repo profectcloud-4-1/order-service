@@ -75,7 +75,7 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> getCart(
+	profect.group1.goormdotcom.common.apiPayload.ApiResponse<CartResponseDto> getCart(
 			@LoginUser UUID userId
 	);
 
@@ -133,7 +133,7 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> addItemToCart(
+	profect.group1.goormdotcom.common.apiPayload.ApiResponse<CartResponseDto> addItemToCart(
 			@Parameter(description = "장바구니에 추가할 아이템 정보", required = true)
 			@RequestBody @Valid AddCartItemRequestDto request,
 			@LoginUser UUID userId
@@ -193,7 +193,7 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> updateItemToCart(
+	profect.group1.goormdotcom.common.apiPayload.ApiResponse<CartResponseDto> updateItemToCart(
 			@Parameter(description = "수정할 장바구니 아이템 ID", required = true)
 			@PathVariable(value = "cartItemId") UUID cartItemId,
 			@Parameter(description = "수정할 수량 정보", required = true)
@@ -247,7 +247,7 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteItemFromCart(
+	profect.group1.goormdotcom.common.apiPayload.ApiResponse<CartResponseDto> deleteItemFromCart(
 			@Parameter(description = "삭제할 장바구니 아이템 ID", required = true)
 			@PathVariable(value = "cartItemId") UUID cartItemId,
 			@LoginUser UUID userId
@@ -307,7 +307,7 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteBulkItemFromCart(
+	profect.group1.goormdotcom.common.apiPayload.ApiResponse<CartResponseDto> deleteBulkItemFromCart(
 			@Parameter(description = "삭제할 장바구니 아이템 ID 목록", required = true)
 			@RequestBody @Valid DeleteBulkCartItemRequestDto request,
 			@LoginUser UUID userId
@@ -359,7 +359,7 @@ public interface CartApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> deleteAllItemsFromCart(
+	profect.group1.goormdotcom.common.apiPayload.ApiResponse<CartResponseDto> deleteAllItemsFromCart(
 			@LoginUser UUID userId
 	);
 }
