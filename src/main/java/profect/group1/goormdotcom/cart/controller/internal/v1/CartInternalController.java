@@ -18,7 +18,7 @@ import profect.group1.goormdotcom.common.apiPayload.code.status.SuccessStatus;
 import profect.group1.goormdotcom.cart.domain.Cart;
 import profect.group1.goormdotcom.cart.service.CartService;
 import profect.group1.goormdotcom.cart.service.CartServiceImpl;
-import profect.group1.goormdotcom.user.controller.auth.LoginUser;
+import profect.group1.goormdotcom.common.auth.LoginUser;
 
 @Slf4j
 @RestController

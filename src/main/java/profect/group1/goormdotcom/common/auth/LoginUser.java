@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.user.controller.auth;
+package profect.group1.goormdotcom.common.auth;
 
 import io.swagger.v3.oas.annotations.Parameter;
 

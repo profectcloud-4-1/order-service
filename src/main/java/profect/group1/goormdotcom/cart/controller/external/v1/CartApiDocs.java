@@ -16,7 +16,7 @@ import profect.group1.goormdotcom.cart.controller.external.v1.dto.CartResponseDt
 import profect.group1.goormdotcom.cart.controller.external.v1.dto.request.AddCartItemRequestDto;
 import profect.group1.goormdotcom.cart.controller.external.v1.dto.request.DeleteBulkCartItemRequestDto;
 import profect.group1.goormdotcom.cart.controller.external.v1.dto.request.UpdateCartItemRequestDto;
-import profect.group1.goormdotcom.user.controller.auth.LoginUser;
+import profect.group1.goormdotcom.common.auth.LoginUser;
 
 @Tag(name = "장바구니", description = "장바구니 관리 API")
 public interface CartApiDocs {

@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.user.controller.auth;
+package profect.group1.goormdotcom.common.auth;
 
 import java.util.UUID;
 import org.springframework.core.MethodParameter;

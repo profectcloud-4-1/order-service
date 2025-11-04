@@ -10,7 +10,7 @@ import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderRequestDto;
 import profect.group1.goormdotcom.order.service.OrderService;
 import profect.group1.goormdotcom.order.domain.Order;
-import profect.group1.goormdotcom.user.controller.auth.LoginUser;
+import profect.group1.goormdotcom.common.auth.LoginUser;
 
 @RestController
 @RequestMapping("/api/v1/orders")
