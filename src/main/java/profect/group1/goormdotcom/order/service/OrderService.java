@@ -9,15 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
-import profect.group1.goormdotcom.apiPayload.exceptions.handler.OrderHandler;
-import profect.group1.goormdotcom.order.client.DeliveryClient;
-import profect.group1.goormdotcom.order.client.PaymentClient; //?
-import profect.group1.goormdotcom.order.client.dto.DeliveryStartResponseDto;
-import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentRequestDto;
-import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentRequestItemDto;
-import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentResponseDto;
-import profect.group1.goormdotcom.order.client.stock.StockClient;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.exceptions.handler.OrderHandler;
+import profect.group1.goormdotcom.order.infrastructure.client.DeliveryClient;
+import profect.group1.goormdotcom.order.infrastructure.client.PaymentClient;
+import profect.group1.goormdotcom.order.infrastructure.client.dto.DeliveryStartResponseDto;
+import profect.group1.goormdotcom.order.infrastructure.client.dto.StockAdjustmentRequestDto;
+import profect.group1.goormdotcom.order.infrastructure.client.dto.StockAdjustmentRequestItemDto;
+import profect.group1.goormdotcom.order.infrastructure.client.dto.StockAdjustmentResponseDto;
+import profect.group1.goormdotcom.order.infrastructure.client.StockClient;
 import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderItemDto;
 import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderRequestDto;
 import profect.group1.goormdotcom.order.domain.Order;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.delivery.domain.DeliveryAddress;
 import profect.group1.goormdotcom.delivery.controller.external.v1.dto.response.DeliveryResponseDto;
 import profect.group1.goormdotcom.delivery.controller.external.v1.dto.request.CreateAddressRequestDto;

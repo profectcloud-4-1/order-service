@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.delivery.domain.DeliveryReturn;
 import profect.group1.goormdotcom.delivery.service.DeliveryService;
 import profect.group1.goormdotcom.delivery.domain.Delivery;
 import profect.group1.goormdotcom.delivery.controller.internal.v1.dto.request.StartDeliveryRequestDto;
 import profect.group1.goormdotcom.delivery.controller.internal.v1.dto.request.CancelDeliveryRequestDto;
-import profect.group1.goormdotcom.apiPayload.code.status.ErrorStatus;
+import profect.group1.goormdotcom.common.apiPayload.code.status.ErrorStatus;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import profect.group1.goormdotcom.delivery.controller.internal.v1.DeliveryInternalApiDocs;

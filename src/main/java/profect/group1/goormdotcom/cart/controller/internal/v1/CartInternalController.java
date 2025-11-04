@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
-import profect.group1.goormdotcom.apiPayload.code.status.SuccessStatus;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.code.status.SuccessStatus;
 import profect.group1.goormdotcom.cart.domain.Cart;
 import profect.group1.goormdotcom.cart.service.CartService;
 import profect.group1.goormdotcom.cart.service.CartServiceImpl;
-import profect.group1.goormdotcom.user.controller.auth.LoginUser;
+import profect.group1.goormdotcom.common.auth.LoginUser;
 
 @Slf4j
 @RestController

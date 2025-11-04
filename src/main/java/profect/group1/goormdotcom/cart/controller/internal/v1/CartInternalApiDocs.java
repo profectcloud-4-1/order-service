@@ -16,7 +16,7 @@ import profect.group1.goormdotcom.cart.controller.external.v1.dto.CartResponseDt
 import profect.group1.goormdotcom.cart.controller.external.v1.dto.request.AddCartItemRequestDto;
 import profect.group1.goormdotcom.cart.controller.external.v1.dto.request.DeleteBulkCartItemRequestDto;
 import profect.group1.goormdotcom.cart.controller.external.v1.dto.request.UpdateCartItemRequestDto;
-import profect.group1.goormdotcom.user.controller.auth.LoginUser;
+import profect.group1.goormdotcom.common.auth.LoginUser;
 
 @Tag(name = "Cart (internal)", description = "장바구니 API (내부서비스간 통신용)")
 public interface CartInternalApiDocs {
@@ -61,7 +61,7 @@ public interface CartInternalApiDocs {
 					)
 			)
 	})
-	profect.group1.goormdotcom.apiPayload.ApiResponse<UUID> createCart(
+	profect.group1.goormdotcom.common.apiPayload.ApiResponse<UUID> createCart(
 			@LoginUser UUID userId
 	);
 

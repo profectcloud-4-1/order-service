@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import java.util.UUID;
 import java.lang.Boolean;
 import org.springframework.web.bind.annotation.PathVariable;
-import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 
 
 @FeignClient(
