@@ -14,7 +14,7 @@ import java.util.UUID;
  * - 결제 취소
  */
 @FeignClient(
-    name = "order-to-payment",
+    name = "${spring.cloud.openfeign.client.config.order-to-payment.name}",
     configuration = profect.group1.goormdotcom.common.config.FeignConfig.class
 )
 public interface PaymentClient {

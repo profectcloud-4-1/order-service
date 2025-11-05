@@ -20,7 +20,7 @@ import java.util.UUID;
  * - 재고 복구
  */
 @FeignClient(
-    name = "order-to-stock",
+    name = "${spring.cloud.openfeign.client.config.order-to-stock.name}",
     configuration = profect.group1.goormdotcom.common.config.FeignConfig.class
 )
 public interface StockClient {
