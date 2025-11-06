@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderRequestDto;
@@ -22,6 +23,7 @@ public class OrderController implements OrderApiDocs{
     //주문생성 
     // *POST /api/v1/orders
     @PostMapping
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<Order> create(@Valid @RequestBody OrderRequestDto req, @LoginUser UUID userId) {
         Order order = orderService.create(userId,req);
         return ApiResponse.onSuccess(order);
@@ -29,24 +31,28 @@ public class OrderController implements OrderApiDocs{
     
     //배송 전 취소 (환불)
     @PostMapping("/{orderId}/cancel/delivery-before")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<Order> deliveryBefore(@PathVariable UUID orderId) {
         return ApiResponse.onSuccess(orderService.delieveryBefore(orderId));
     }
 
     //배송 후 취소 (반송)
     @PostMapping("/{orderId}/cancel/return")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<Order> cancel(@PathVariable UUID orderId) {
         return ApiResponse.onSuccess(orderService.cancel(orderId));
     }
  
     //전체 조회
     @GetMapping
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<List<Order>> getAllOrders(){
         return ApiResponse.onSuccess(orderService.getAll());
     }
 
     //단건 조회
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<Order> getOne(@PathVariable UUID id){
         return ApiResponse.onSuccess(orderService.getOne(id));
     }

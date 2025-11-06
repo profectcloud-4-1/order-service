@@ -11,6 +11,7 @@ import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 
 @FeignClient(
 		name = "delivery-to-order",
+        url = "${service.order.url}",
 		fallback = DeliveryOrderClientFallBack.class
 )
 public interface DeliveryOrderClient {

@@ -21,6 +21,7 @@ import java.util.UUID;
  */
 @FeignClient(
     name = "order-to-stock",
+    url = "service.product.url",
     configuration = profect.group1.goormdotcom.common.config.FeignConfig.class
 )
 public interface StockClient {

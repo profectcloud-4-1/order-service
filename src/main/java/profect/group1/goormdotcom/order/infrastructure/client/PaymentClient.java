@@ -15,6 +15,7 @@ import java.util.UUID;
  */
 @FeignClient(
     name = "order-to-payment",
+    url = "${service.payment.url}",
     configuration = profect.group1.goormdotcom.common.config.FeignConfig.class
 )
 public interface PaymentClient {
