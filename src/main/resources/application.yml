@@ -1,9 +1,8 @@
 spring:
   application:
-    name: "Goormdotcom-Backend"
+    name: "order-service"
   profiles:
-    active: dev
-    include: secret
+    active: ${ORDER_PROFILE:dev}
 
 management:
   endpoints:
