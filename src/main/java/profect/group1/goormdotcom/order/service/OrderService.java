@@ -18,6 +18,14 @@ import profect.group1.goormdotcom.order.infrastructure.client.dto.StockAdjustmen
 import profect.group1.goormdotcom.order.infrastructure.client.dto.StockAdjustmentRequestItemDto;
 import profect.group1.goormdotcom.order.infrastructure.client.dto.StockAdjustmentResponseDto;
 import profect.group1.goormdotcom.order.infrastructure.client.StockClient;
+import profect.group1.goormdotcom.order.infrastructure.kafka.service.StockKafkaProducer;
+import profect.group1.goormdotcom.order.infrastructure.kafka.service.DeliveryKafkaProducer;
+import profect.group1.goormdotcom.order.infrastructure.kafka.service.OrderCompletedKafkaProducer;
+import profect.group1.goormdotcom.order.infrastructure.kafka.dto.StockDecreaseRequestMessage;
+import profect.group1.goormdotcom.order.infrastructure.kafka.dto.DeliveryRequestMessage;
+import profect.group1.goormdotcom.order.infrastructure.kafka.dto.OrderCompletedMessage;
+import profect.group1.goormdotcom.order.domain.event.OrderCreatedEvent;
+import profect.group1.goormdotcom.order.infrastructure.event.OrderEventPublisher;
 import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderItemDto;
 import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderRequestDto;
 import profect.group1.goormdotcom.order.domain.Order;
@@ -53,6 +61,14 @@ public class OrderService {
     private final StockClient stockClient;
     private final PaymentClient paymentClient;
     private final DeliveryClient deliveryClient;
+    
+    //Kafka Producers
+    private final StockKafkaProducer stockKafkaProducer;
+    private final DeliveryKafkaProducer deliveryKafkaProducer;
+    private final OrderCompletedKafkaProducer orderCompletedKafkaProducer;
+    
+    //Event Publisher
+    private final OrderEventPublisher eventPublisher;
 
     // @Value("${features.external-call.stock-check:true}")
     // private Boolean stockCheckEnabled;
@@ -78,25 +94,9 @@ public class OrderService {
     // 재고 확인 먼저
     @Transactional
     public Order create(UUID userId, OrderRequestDto req) {
-        // log.info("주문 생성 시작: customerId={}, itemCount={}", req.getCustomerId(), req.getItems().size());
+        log.info("주문 생성 시작: userId={}, itemCount={}", userId, req.getItems().size());
 
-        // 재고 차감 (주문 생성 전 선차감)
-        List<StockAdjustmentRequestItemDto> stockRequestItems = req.getItems().stream()
-            .map(itemDto -> new StockAdjustmentRequestItemDto(itemDto.getProductId(), itemDto.getQuantity()))
-            .toList();
-
-        ApiResponse<StockAdjustmentResponseDto> stockResponse = stockClient.decreaseStocks(
-                new StockAdjustmentRequestDto(stockRequestItems)
-            );
-        if (!stockResponse.getResult().status()) {
-            log.error("재고 차감 실패");
-            throw new IllegalStateException("재고 차감에 실패했습니다.");
-        }
-
-        log.info("재고 차감 완료");
-
-        // 아이템 저장 (초기 값을 지정 해주고, 그 초기 값을 바탕으로 받아서 상태값만 변경해서 사용하는 방식으로 진행 )
-        // 기존에 내가 하던 방식은 OrderId 를 OrderName과 연동해야 해서 새로운 객체를 받고 그거를 바탕으로 루프 돌아야 하는게 그런방식이 영속성 문제에 걸려서 하지 못한 거였음
+        // 주문 생성 (상태: PENDING)
         OrderEntity orderEntity = OrderEntity.builder()
                         .customerId(userId)
                         .totalAmount(req.getTotalAmount())
@@ -105,7 +105,9 @@ public class OrderService {
                         .build();
 
         orderRepository.save(orderEntity);
+        log.info("주문 엔티티 저장 완료: orderId={}, status=PENDING", orderEntity.getId());
 
+        // 주문 상품 저장
         List<OrderProductEntity> lines = new ArrayList<>();
         for (OrderItemDto itemDto : req.getItems()) {
             String productName = (req.getOrderName() != null && !req.getOrderName().isBlank())
@@ -125,7 +127,7 @@ public class OrderService {
         // 상태 이력 추가
         appendOrderStatus(orderEntity.getId(), OrderStatus.PENDING);
 
-        // address insert
+        // 배송지 정보 저장
         OrderAddressEntity addressEntity = OrderAddressEntity.builder()
             .orderId(orderEntity.getId())
             .customerId(userId)
@@ -138,7 +140,25 @@ public class OrderService {
             .build();
         orderAddressRepository.save(addressEntity);
 
-        log.info("주문 생성 완료: orderId={}, orderName={}, status=결제대기", 
+        // 주문 생성 이벤트 발행 (이벤트 기반)
+        List<OrderCreatedEvent.ProductItem> productItems = req.getItems().stream()
+            .map(itemDto -> new OrderCreatedEvent.ProductItem(
+                itemDto.getProductId(),
+                itemDto.getQuantity()
+            ))
+            .collect(java.util.stream.Collectors.toList());
+        
+        OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(
+            orderEntity.getId(),
+            userId,
+            productItems
+        );
+        
+        eventPublisher.publishOrderCreated(orderCreatedEvent);
+        log.info("주문 생성 이벤트 발행 완료: orderId={}, productCount={}", 
+            orderEntity.getId(), productItems.size());
+
+        log.info("주문 생성 완료: orderId={}, orderName={}, status=PENDING", 
             orderEntity.getId(), orderEntity.getOrderName());
 
         return orderMapper.toDomain(orderEntity);
@@ -177,6 +197,76 @@ public class OrderService {
         // 주문 상태 업데이트       
         appendOrderStatus(orderId, OrderStatus.COMPLETED);
         return orderMapper.toDomain(orderEntity);
+    }
+
+    /**
+     * 결제 성공 처리 (Kafka Consumer에서 호출)
+     * - 배송 요청 발행 (비동기)
+     */
+    @Transactional
+    public void handlePaymentSuccess(UUID orderId) {
+        log.info("결제 성공 처리 시작: orderId={}", orderId);
+
+        OrderEntity orderEntity = findOrderOrThrow(orderId);
+        OrderAddressEntity addressEntity = orderAddressRepository.findByOrderId(orderId)
+            .orElseThrow(() -> new IllegalStateException("배송지 정보를 찾을 수 없습니다. orderId=" + orderId));
+
+        // 배송 요청 발행 (비동기 - Kafka)
+        DeliveryRequestMessage deliveryRequest = new DeliveryRequestMessage(
+            orderId,
+            addressEntity.getCustomerId(),
+            addressEntity.getAddress(),
+            addressEntity.getAddressDetail(),
+            addressEntity.getZipcode(),
+            addressEntity.getPhone(),
+            addressEntity.getName(),
+            addressEntity.getDeliveryMemo()
+        );
+
+        deliveryKafkaProducer.sendDeliveryRequest(deliveryRequest);
+        log.info("배송 요청 발행 완료 (비동기): orderId={}", orderId);
+
+        // 주문 상태 업데이트 (결제 완료)
+        appendOrderStatus(orderId, OrderStatus.COMPLETED);
+    }
+
+    /**
+     * 결제 실패 처리 (Kafka Consumer에서 호출)
+     * - 재고 복구
+     * - 주문 상태 실패로 변경
+     */
+    @Transactional
+    public void handlePaymentFailure(UUID orderId) {
+        log.info("결제 실패 처리 시작: orderId={}", orderId);
+
+        // 기존 failPayment 메서드 재사용
+        failPayment(orderId);
+    }
+
+    /**
+     * 배송 시작 처리 (Kafka Consumer에서 호출)
+     * - 주문 완료 메시지 발행 (비동기)
+     */
+    @Transactional
+    public void handleDeliveryStart(UUID orderId) {
+        log.info("배송 시작 처리 시작: orderId={}", orderId);
+
+        OrderEntity orderEntity = findOrderOrThrow(orderId);
+
+        // 주문 완료 메시지 발행 (비동기 - Kafka)
+        OrderCompletedMessage completedMessage = new OrderCompletedMessage(
+            orderEntity.getId(),
+            orderEntity.getCustomerId(),
+            OrderStatus.COMPLETED.getCode(),
+            orderEntity.getTotalAmount(),
+            orderEntity.getOrderName()
+        );
+
+        orderCompletedKafkaProducer.sendOrderCompleted(completedMessage);
+        log.info("주문 완료 메시지 발행 완료 (비동기): orderId={}, customerId={}", 
+            orderId, orderEntity.getCustomerId());
+
+        // 주문 상태는 이미 COMPLETED로 변경되어 있음
     }
 
     public Order failPayment(UUID orderId) {

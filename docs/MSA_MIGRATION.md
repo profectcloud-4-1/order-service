@@ -307,3 +307,32 @@ spring:
 - [Spring Cloud OpenFeign](https://spring.io/projects/spring-cloud-openfeign)
 - [Database per Service Pattern](https://microservices.io/patterns/data/database-per-service.html)
 
+
+**비동기 통신 구현 현황**
+
+✅ **Order 서비스 구현 완료** (2025-11-05)
+- Kafka Producer/Consumer 모두 구현 완료
+- 모든 메시지 DTO 생성 완료
+- 전체 프로세스 흐름 구현 완료
+
+⏳ **다른 서비스 구현 필요**
+- Stock 서비스: Consumer (재고 차감), Producer (응답)
+- Payment 서비스: Producer (결제 완료 메시지)
+- Delivery 서비스: Consumer (배송 요청), Producer (배송 시작)
+
+**상세 내용**: `docs/KAFKA_INTEGRATION_GUIDE.md` 참조
+
+<주문 성공 트랜잭션 프로세스>
+- ✅ Client -> Order API (동기 통신)
+- ✅ 주문상태 변경(status=Pending)
+- ✅ 재고 차감 요청 Stock (비동기 - Kafka)
+- ⏳ 재고 확인 응답(ProductId, Status) (비동기 - Stock 서비스 구현 필요)
+- ✅ Order to Client 주문 정보 전달 (동기)
+- ⏳ Client -> Payment 결제 요청 (비동기 - Payment 서비스)
+- ⏳ Payment -> PG 결제 승인 요청 (동기 - Payment 서비스)
+- ⏳ PG -> Payment 응답(동기 - Payment 서비스)
+- ⏳ Payment -> Client (redirect page로 이동) (비동기 - Payment 서비스)
+- ✅ Payment -> OrderAPI (결제성공) (비동기 - Payment 서비스에서 Producer 구현 필요)
+- ✅ Order -> Delivery 배송요청 (비동기 - Kafka)
+- ⏳ Delivery -> Order 배송시작 (비동기 - Delivery 서비스에서 Producer 구현 필요)
+- ✅ Order -> Client 주문완료 상태 (비동기 - Kafka)
