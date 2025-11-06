@@ -19,6 +19,7 @@ import profect.group1.goormdotcom.order.infrastructure.client.dto.DeliveryStartR
  */
 @FeignClient(
     name = "order-to-delivery",
+    url = "${service.order.url}",
     configuration = profect.group1.goormdotcom.common.config.FeignConfig.class
 )
 public interface DeliveryClient {
