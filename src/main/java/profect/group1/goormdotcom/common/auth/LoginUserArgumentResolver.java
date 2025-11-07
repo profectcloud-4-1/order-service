@@ -9,6 +9,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import profect.group1.goormdotcom.common.dto.UserContext;
 
 @Component
 public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
@@ -19,18 +20,27 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
 				&& parameter.getParameterType().equals(UUID.class);
 	}
 
-	@Override
-	public Object resolveArgument(final MethodParameter parameter,
-			final ModelAndViewContainer mavContainer,
-			final NativeWebRequest webRequest, final WebDataBinderFactory binderFactory)
-			throws Exception {
+    @Override
+    public Object resolveArgument(final MethodParameter parameter,
+                                  final ModelAndViewContainer mavContainer,
+                                  final NativeWebRequest webRequest,
+                                  final WebDataBinderFactory binderFactory) throws Exception {
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null || authentication.getPrincipal() == null) {
-			throw new IllegalStateException("No authentication found");
-		}
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		String userId = (String) authentication.getPrincipal();
-		return UUID.fromString(userId);
-	}
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("No authentication found");
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        if (!(principal instanceof UserContext userContext)) {
+            throw new IllegalStateException(
+                    "Unexpected principal type: " +
+                            (principal != null ? principal.getClass().getName() : "null")
+            );
+        }
+
+        return userContext.getUserId();
+    }
 }
