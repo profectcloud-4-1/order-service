@@ -65,6 +65,9 @@ dependencies {
 
     //JSON 직/역직렬화
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    //.env
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 }
 
 dependencyManagement {
