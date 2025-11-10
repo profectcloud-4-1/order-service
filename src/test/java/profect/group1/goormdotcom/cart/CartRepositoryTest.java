@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import profect.group1.goormdotcom.cart.repository.CartItemRepository;
 import profect.group1.goormdotcom.cart.repository.CartRepository;
 import profect.group1.goormdotcom.cart.repository.entity.CartEntity;
@@ -19,6 +20,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@ActiveProfiles("test")
 @Import(JpaAuditingConfig.class)
 public class CartRepositoryTest {
 
