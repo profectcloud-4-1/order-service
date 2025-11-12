@@ -23,7 +23,7 @@ public class CartInternalController implements CartInternalApiDocs {
 
 	@PostMapping
 	public ApiResponse<UUID> createCart(
-			@RequestHeader UUID userId
+			@RequestHeader(value = "User-Id", required = true) UUID userId
 	) {
 		UUID cartId = cartService.createCart(userId);
 
