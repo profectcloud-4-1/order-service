@@ -5,14 +5,7 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import profect.group1.goormdotcom.common.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.common.apiPayload.code.status.SuccessStatus;
 import profect.group1.goormdotcom.cart.domain.Cart;
@@ -30,7 +23,7 @@ public class CartInternalController implements CartInternalApiDocs {
 
 	@PostMapping
 	public ApiResponse<UUID> createCart(
-			@LoginUser UUID userId
+			@RequestHeader UUID userId
 	) {
 		UUID cartId = cartService.createCart(userId);
 
