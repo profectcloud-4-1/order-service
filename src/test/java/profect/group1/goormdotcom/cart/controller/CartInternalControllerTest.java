@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import profect.group1.goormdotcom.cart.controller.internal.v1.CartInternalController;
@@ -51,12 +52,12 @@ public class CartInternalControllerTest {
     void createCart() throws Exception {
         // given
         UUID cartId = UUID.randomUUID();
-        given(loginUserArgumentResolver.supportsParameter(any())).willReturn(true);
-        given(loginUserArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(userId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("User-Id", userId.toString());
         given(cartService.createCart(userId)).willReturn(cartId);
 
         // when & then
-        mockMvc.perform(post("/internal/v1/carts"))
+        mockMvc.perform(post("/internal/v1/carts").headers(headers))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value(cartId.toString()));
     }
