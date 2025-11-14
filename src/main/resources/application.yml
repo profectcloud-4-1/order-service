@@ -18,15 +18,6 @@ spring:
             connectTimeout: 5000
             readTimeout: 5000
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info
-  endpoint:
-    health:
-      show-details: never
-
 springdoc:
   use-fqn: true
 
