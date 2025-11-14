@@ -1,5 +1,6 @@
 plugins {
 	id 'java'
+    id 'jacoco'
 	id 'org.springframework.boot' version '3.5.6'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -28,6 +29,38 @@ ext {
 	set('springCloudVersion', "2025.0.0")
 }
 
+//jacoco
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        html.required.set(true)
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('reports/jacoco')
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, include: [
+                            '**/service/**',
+                            '**/controller/**',
+                            '**/repository/**'
+                    ])
+                })
+        )
+    }
+}
+
 dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -38,8 +71,8 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-	// Micrometer -> CloudWatch 측정 데이터 전송
-	implementation 'io.micrometer:micrometer-registry-cloudwatch2'
+	// Micrometer -> Prometheus 측정 데이터 전송
+	implementation 'io.micrometer:micrometer-registry-prometheus'
 
 	// feign client
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
