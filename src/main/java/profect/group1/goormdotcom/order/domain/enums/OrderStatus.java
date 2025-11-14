@@ -11,11 +11,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "주문 상태")
 public enum OrderStatus {
     PENDING("ORD0001", "대기"),
-    // PAID,
-    // CREATED,
-    COMPLETED("ORD0002", "완료"),
-    CANCELLED("ORD0003", "취소"),
-    FAILED("ORD0004", "실패");
+    PAID("ORD0002", "결제완료"),
+    COMPLETED("ORD0003", "완료"),
+    CANCELLED("ORD0004", "취소"),
+    FAILED("ORD0005", "실패");
 
     private final String code;
     private final String label;

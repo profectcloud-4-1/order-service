@@ -1,28 +1,44 @@
+# Order - Delivery간 이벤트 통신을 확인하기 위한 설정 입니다.
+
+# 11/12 -> CI 될 때 자동으로 Order-delivery 통신 테스트도 돌아감감
 spring:
+  config:
+    activate:
+      on-profile: test
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:order-service-test;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
-
   jpa:
     hibernate:
-      ddl-auto: create-drop   # 테스트할 때마다 스키마 새로 만들고 끝나면 드롭
+      ddl-auto: create-drop
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
-        show_sql: true
-    open-in-view: false
-
-server:
-  port: 8765
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 1000
+            readTimeout: 1000
 
 service:
   user:
-    url: http://localhost:8080
-  order:
-    url: http://localhost:8080
+    url: http://localhost/mock-user
   product:
-    url: http://localhost:8080
+    url: http://localhost/mock-product
+  order:
+    url: http://localhost/mock-order
   payment:
-    url: http://localhost:8080
+    url: http://localhost/mock-payment
+  stock:
+    url: http://localhost/mock-stock
+
+logging:
+  level:
+    root: WARN
+    profect.group1.goormdotcom.order: INFO
+    profect.group1.goormdotcom.delivery: INFO

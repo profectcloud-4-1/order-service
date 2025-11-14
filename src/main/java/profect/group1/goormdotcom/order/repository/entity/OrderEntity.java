@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import profect.group1.goormdotcom.common.domain.BaseEntity;
+import profect.group1.goormdotcom.order.domain.enums.OrderStatus;
 
 import org.hibernate.annotations.Comment;
 
@@ -52,4 +53,7 @@ public class OrderEntity extends BaseEntity {
     // @Singular("item")
     // private List<OrderProductEntity> items = new ArrayList<>();
 
+    public void updateStatus(OrderStatus status) {
+        this.status = status.getCode();
+    }
 }
