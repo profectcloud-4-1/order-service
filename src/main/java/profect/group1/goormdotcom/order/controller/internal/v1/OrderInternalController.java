@@ -17,8 +17,10 @@ public class OrderInternalController {
     private final OrderService orderService;
 
     //결제 완료
-    @PostMapping("/{orderId}/payment/success")
-    public ApiResponse<Order> completePayment(@PathVariable UUID orderId) {
+    @PostMapping("/payment/success")
+    // public ApiResponse<Order> completePayment(@PathVariable UUID orderId) {
+    public ApiResponse<Order> completePayment() {
+        UUID orderId = UUID.randomUUID();
         return ApiResponse.onSuccess(orderService.completePayment(orderId));
     }
 
