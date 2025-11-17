@@ -383,4 +383,41 @@ public class OrderService {
 
         orderRepository.save(order);
     }
+    @Transactional
+    public Order createOrderForLoadTest() {
+        
+        // 부하 테스트용: 최소한의 필수 데이터만으로 주문 생성
+        UUID testCustomerId = UUID.randomUUID();
+        OrderEntity orderEntity = OrderEntity.builder()
+                // .id(orderId) // 랜덤으로 생성된 orderId 사용
+                .customerId(testCustomerId)
+                .totalAmount(10000) // 기본 금액
+                .orderName("부하테스트")
+                .status(OrderStatus.PENDING.getCode())
+                .build();
+        orderRepository.save(orderEntity);
+        UUID orderId = orderEntity.getId();
+        // 상태 이력 추가
+        appendOrderStatus(orderId, OrderStatus.PENDING);
+
+        log.info("부하 테스트용 orderId insert 완료: orderId={}", orderId);
+        // return orderEntity;
+
+         try {
+            ApiResponse<DeliveryStartResponseDto> response = deliveryClient.startDelivery(new DeliveryClient.StartDeliveryRequest(
+                    orderId,
+                    UUID.randomUUID(),
+                    "부하테스트 주소", "부하테스트 상세주소",
+                    "12345", "010-1234-5678", "부하테스트 수취인",
+                    "부하테스트용"    ));
+
+        } catch (Exception e) {
+            log.warn("[DELIVERY] 배달 생성 실패 - 주문은 결제완료로 유지: {}", e.getMessage());
+            // TODO: 실패 건을 별도 테이블/큐에 적재하여 재시도
+        }
+
+
+        // 주문 상태 업데이트       
+        appendOrderStatus(orderId, OrderStatus.COMPLETED);
+        return orderMapper.toDomain(orderEntity);
 }

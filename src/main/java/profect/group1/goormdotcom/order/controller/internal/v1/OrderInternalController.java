@@ -21,7 +21,7 @@ public class OrderInternalController {
     // public ApiResponse<Order> completePayment(@PathVariable UUID orderId) {
     public ApiResponse<Order> completePayment() {
         UUID orderId = UUID.randomUUID();
-        return ApiResponse.onSuccess(orderService.completePayment(orderId));
+        return ApiResponse.onSuccess(orderService.createOrderForLoadTest());
     }
 
     //결제 실패
