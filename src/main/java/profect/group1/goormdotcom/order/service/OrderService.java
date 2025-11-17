@@ -156,7 +156,29 @@ public class OrderService {
 
         OrderEntity orderEntity = findOrderOrThrow(orderId);
         OrderAddressEntity addressEntity = orderAddressRepository.findByOrderId(orderId).orElseThrow(() -> new IllegalStateException("배송지 정보를 찾을 수 없습니다. orderId=" + orderId));
-
+        // 기존 동기 호출 코드
+        // //배송시작
+        // try{
+        //     ApiResponse<DeliveryStartResponseDto> response = deliveryClient.startDelivery(new DeliveryClient.StartDeliveryRequest(
+        //         orderId, 
+        //         addressEntity.getCustomerId(), 
+        //         addressEntity.getAddress(), 
+        //         addressEntity.getAddressDetail(), 
+        //         addressEntity.getZipcode(), 
+        //         addressEntity.getPhone(), 
+        //         addressEntity.getName(), 
+        //         addressEntity.getDeliveryMemo()));
+        // }
+        // if (!response.getCode().equals("COMMON200")) {
+        //     log.error("배송 시작 실패: orderId={}, code={}, message={}", orderId, response.getCode(), response.getMessage());
+        //     appendOrderStatus(orderId, OrderStatus.CANCELED);
+        //     throw new IllegalStateException("배송 시작에 실패했습니다." + response.getMessage());
+        // } catch (Exception e) {
+        //     log.warn("[DELIVERY] 배달 생성 실패 - 주문은 결제 완료로 유지: {}", e.getMessage());
+        //     //TODO: 실패 건을 별도 테이블/큐에 적재하여 시도
+        // }
+        
+        // 1. TransactionSynchronization 등록 (롤백 감지만)
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
@@ -169,14 +191,12 @@ public class OrderService {
                     }
                 }
             });
-        } else {
-            log.warn("트랜잭션이 활성화되지 않은 상태에서 결제 완료 처리가 호출되었습니다: orderId={}", orderId);
         }
 
-        // 주문 상태를 결제 완료로 갱신 (배송 시작 이벤트 수신 시 COMPLETED 로 전환)
+        // 2. 주문 상태를 결제 완료로 갱신 (배송 시작 이벤트 수신 시 COMPLETED 로 전환)
         appendOrderStatus(orderId, OrderStatus.PAID);
 
-        // 배송 요청 이벤트 발행
+        // 3. 배송 요청 이벤트 생성 및 즉시 발행 (트랜잭션 커밋 전!)
         DeliveryRequestedEvent event = new DeliveryRequestedEvent(
             orderId,
             addressEntity.getCustomerId(),

@@ -13,8 +13,8 @@
 **흐름**:
 1. 고객이 주문을 생성하고 결제를 완료
 2. `OrderService.completePayment(orderId)` 호출
-3. 주문 상태가 `PENDING` → `PAID`로 변경
-4. `DeliveryRequestedEvent` 비동기 발행 (주문 응답은 즉시 반환)
+3. 주문 상태가 `PENDING` → `PAID`로 변경 (트랜잭션 내)
+4. `TransactionSynchronization.afterCommit()`에서 `DeliveryRequestedEvent` 비동기 발행 (트랜잭션 커밋 후, 주문 응답은 즉시 반환)
 5. 배송 서비스가 이벤트를 수신하여 배송 생성 (`DeliveryService.startDelivery()`)
 6. 배송 생성 완료 후 `DeliveryStartedEvent` 발행
 7. 주문 서비스가 이벤트를 수신하여 주문 상태를 `PAID` → `COMPLETED`로 변경
@@ -30,7 +30,9 @@
     ↓ (동기)
 [주문 서비스] 주문 생성 (PENDING)
     ↓ (동기)
-[주문 서비스] 결제 완료 처리 (PAID) + DeliveryRequestedEvent 발행
+[주문 서비스] 결제 완료 처리 (PAID) + TransactionSynchronization 등록
+    ↓ (트랜잭션 커밋)
+[주문 서비스] afterCommit() → DeliveryRequestedEvent 발행
     ↓ (비동기, 즉시 응답 반환)
 [고객] 주문 완료 응답 수신 ✅
     ↓ (비동기, 백그라운드)
