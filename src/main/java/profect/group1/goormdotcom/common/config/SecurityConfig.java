@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/internal/**").permitAll() // 내부 서비스 간 통신용 (부하 테스트 포함)
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(userHeaderAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

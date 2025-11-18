@@ -4,11 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.PlatformTransactionManager;
 import profect.group1.goormdotcom.delivery.domain.enums.DeliveryStatus;
+import profect.group1.goormdotcom.delivery.event.DeliveryStartFailedEvent;
 import profect.group1.goormdotcom.delivery.infrastructure.client.DeliveryOrderClient;
 import profect.group1.goormdotcom.delivery.repository.DeliveryAddressRepository;
 import profect.group1.goormdotcom.delivery.repository.DeliveryRepository;
@@ -65,6 +68,8 @@ public class DeliveryManagerTest {
     private PlatformTransactionManager transactionManager;
     @Mock
     private DeliveryOrderClient orderClient;
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     private UUID orderId;
     private DeliveryEntity deliveryEntity;
@@ -191,5 +196,24 @@ public class DeliveryManagerTest {
 
         // then
         assertThat(deliveryAddress).isNotNull();
+    }
+
+    @Test
+    @DisplayName("startDelivery() - Goorm 주소 없을 때 예외 발생 및 롤백 감지 테스트")
+    void startDelivery_whenGoormAddressNotFound_throwsException() {
+        // given
+        UUID orderId = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+        
+        // Goorm 주소가 없어서 예외 발생하도록 설정
+        when(goormAddressRepository.findTopByOrderByCreatedAtDesc()).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () -> {
+            deliveryManager.startDelivery(orderId, customerId, "address", "detail", "zip", "phone", "name", "memo");
+        });
+        
+        // Note: 단위 테스트에서는 실제 트랜잭션이 없어서 TransactionSynchronization이 동작하지 않을 수 있습니다.
+        // 통합 테스트를 통해 실제 롤백 감지를 검증해야 합니다.
     }
 }

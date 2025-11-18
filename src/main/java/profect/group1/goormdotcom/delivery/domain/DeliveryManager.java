@@ -12,6 +12,8 @@ import profect.group1.goormdotcom.delivery.repository.DeliveryStepHistoryReposit
 import profect.group1.goormdotcom.delivery.repository.DeliveryReturnStepHistoryRepository;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.UUID;
 import java.util.Optional;
@@ -43,6 +45,9 @@ import profect.group1.goormdotcom.delivery.repository.mapper.DeliveryReturnMappe
 import profect.group1.goormdotcom.delivery.repository.mapper.DeliveryReturnAddressMapper;
 import java.util.stream.Collectors;
 import profect.group1.goormdotcom.delivery.infrastructure.client.DeliveryOrderClient;
+import org.springframework.context.ApplicationEventPublisher;
+import profect.group1.goormdotcom.delivery.event.DeliveryStartFailedEvent;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +66,7 @@ public class DeliveryManager {
     private final PlatformTransactionManager transactionManager;
 
     private final DeliveryOrderClient orderClient;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
 
     public Delivery getDeliveryByOrderId(UUID orderId) {
@@ -88,6 +94,26 @@ public class DeliveryManager {
 
     @Transactional
     public Delivery startDelivery(final UUID orderId, final UUID customerId, final String address, final String addressDetail, final String zipcode, final String phone, final String name, final String deliveryMemo) {
+        // 1. TransactionSynchronization 등록 (롤백 감지)
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCompletion(int status) {
+                    if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+                        // Delivery 트랜잭션 롤백 감지 - 보상 이벤트 발행
+                        applicationEventPublisher.publishEvent(
+                            DeliveryStartFailedEvent.builder()
+                                .orderId(orderId)
+                                .errorMessage("배송 시작 중 오류가 발생하여 롤백되었습니다.")
+                                .occurredAt(Instant.now())
+                                .build()
+                        );
+                    }
+                }
+            });
+        }
+
+        // 2. 배송 시작 로직 실행 (예외 발생 시 자동으로 롤백됨)
         GoormAddressEntity goormAddressEntity = this.goormAddressRepo.findTopByOrderByCreatedAtDesc().orElseThrow(() -> new IllegalArgumentException("Goorm address not found"));
         
         // insert delivery

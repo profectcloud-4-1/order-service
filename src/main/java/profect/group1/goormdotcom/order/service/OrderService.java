@@ -403,21 +403,23 @@ public class OrderService {
         log.info("부하 테스트용 orderId insert 완료: orderId={}", orderId);
         // return orderEntity;
 
-         try {
-            ApiResponse<DeliveryStartResponseDto> response = deliveryClient.startDelivery(new DeliveryClient.StartDeliveryRequest(
-                    orderId,
-                    UUID.randomUUID(),
-                    "부하테스트 주소", "부하테스트 상세주소",
-                    "12345", "010-1234-5678", "부하테스트 수취인",
-                    "부하테스트용"    ));
-
-        } catch (Exception e) {
-            log.warn("[DELIVERY] 배달 생성 실패 - 주문은 결제완료로 유지: {}", e.getMessage());
-            // TODO: 실패 건을 별도 테이블/큐에 적재하여 재시도
-        }
-
-
+         DeliveryRequestedEvent event = new DeliveryRequestedEvent(
+            orderId,
+            // addressEntity.getCustomerId(),
+            UUID.randomUUID(),
+            "부하테스트 주소",
+            "부하테스트 상세주소",
+            "12345",
+            "010-1234-5678",
+            "부하테스트 수취인",
+            "부하테스트용",
+            Instant.now()
+        );
+        deliveryEventPublisher.publishDeliveryRequested(event);
+        log.info("배송 요청 이벤트 발행 완료: orderId={}", orderId);
+        
         // 주문 상태 업데이트       
         appendOrderStatus(orderId, OrderStatus.COMPLETED);
         return orderMapper.toDomain(orderEntity);
+    }
 }

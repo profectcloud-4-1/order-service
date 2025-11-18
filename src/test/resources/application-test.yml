@@ -14,6 +14,7 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
@@ -34,6 +35,8 @@ service:
     url: http://localhost/mock-order
   payment:
     url: http://localhost/mock-payment
+  delivery:
+    url: http://localhost/mock-delivery
   stock:
     url: http://localhost/mock-stock
 

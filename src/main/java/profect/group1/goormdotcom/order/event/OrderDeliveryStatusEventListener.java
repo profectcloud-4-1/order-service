@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import profect.group1.goormdotcom.delivery.event.DeliveryStartedEvent;
+import profect.group1.goormdotcom.delivery.event.DeliveryStartFailedEvent;
 import profect.group1.goormdotcom.order.domain.enums.OrderStatus;
 import profect.group1.goormdotcom.order.repository.OrderRepository;
 import profect.group1.goormdotcom.order.repository.OrderStatusRepository;
@@ -50,6 +51,33 @@ public class OrderDeliveryStatusEventListener {
                 .build()
         );
         log.info("배송 시작에 따라 주문 상태를 COMPLETED로 갱신: orderId={}", order.getId());
+    }
+
+    /**
+     * 배송 서비스가 `DeliveryStartFailedEvent`를 발행했을 때 호출된다.
+     * 배송 시작이 실패했음을 의미하므로 주문 상태를 FAILED로 전환하고 상태 이력을 남긴다.
+     */
+    @Async
+    @Transactional
+    @EventListener
+    public void onDeliveryStartFailed(DeliveryStartFailedEvent event) {
+        log.warn("배송 시작 실패 이벤트 수신: orderId={}, errorMessage={}", event.orderId(), event.errorMessage());
+        orderRepository.findById(event.orderId())
+            .ifPresentOrElse(
+                order -> handleStartFailed(order),
+                () -> log.warn("배송 시작 실패 이벤트 처리 실패 - 주문을 찾을 수 없음: orderId={}", event.orderId())
+            );
+    }
+
+    private void handleStartFailed(OrderEntity order) {
+        order.updateStatus(OrderStatus.FAILED);
+        orderStatusRepository.save(
+            OrderStatusEntity.builder()
+                .order(order)
+                .status(OrderStatus.FAILED.getCode())
+                .build()
+        );
+        log.info("배송 시작 실패에 따라 주문 상태를 CANCELED로 갱신: orderId={}", order.getId());
     }
 }
 
