@@ -17,12 +17,19 @@ public class OrderInternalController {
     private final OrderService orderService;
 
     //결제 완료
+    // 부하 테스트를 위한 주문 orderId 랜덤으로 받음
+    //orderservice에 부하테스트를 위한 주문 생성 메서드(createOrderForLoadTest)가 제일 아레에 존재 
     @PostMapping("/payment/success")
     // public ApiResponse<Order> completePayment(@PathVariable UUID orderId) {
     public ApiResponse<Order> completePayment() {
         UUID orderId = UUID.randomUUID();
         return ApiResponse.onSuccess(orderService.createOrderForLoadTest());
     }
+    //원래 코드
+    //  @PostMapping("/{orderId}/payment/success")
+    // public ApiResponse<Order> completePayment(@PathVariable UUID orderId) {
+    //     return ApiResponse.onSuccess(orderService.completePayment(orderId));
+    // }
 
     //결제 실패
     //재고 원복
