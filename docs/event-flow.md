@@ -64,8 +64,8 @@
 [배송 서비스] 배송 취소 처리
 ```
 
-### 시나리오 3: 트랜잭션 롤백 → 보상 이벤트 발행
-**상황**: 결제 완료 처리 중 예외 발생으로 트랜잭션이 롤백되는 경우
+### 시나리오 3: 주문 서비스 트랜잭션 롤백 → 보상 이벤트 발행
+**상황**: 결제 완료 처리 중 예외 발생으로 주문 서비스 트랜잭션이 롤백되는 경우
 
 **흐름**:
 1. `OrderService.completePayment(orderId)` 실행 시작
@@ -104,6 +104,50 @@
 - 보상 이벤트를 통해 이미 처리된 배송 생성 작업을 취소하여 일관성 유지
 - Saga 패턴의 보상 트랜잭션(Compensating Transaction) 패턴 일부 차용
 
+### 시나리오 4: 배송 시작 실패 → 실패 이벤트 발행
+**상황**: 배송 서비스에서 배송 생성 중 예외 발생으로 트랜잭션이 롤백되는 경우
+
+**흐름**:
+1. `DeliveryRequestedEvent` 수신 (`DeliveryEventListener.onDeliveryRequested`)
+2. `DeliveryService.startDelivery()` → `DeliveryManager.startDelivery()` 호출
+3. `DeliveryManager.startDelivery()`에서 `TransactionSynchronization` 등록 (롤백 감지용)
+4. 배송 엔티티 생성 및 저장 시도
+5. 이후 예외 발생으로 트랜잭션 롤백
+6. `TransactionSynchronization.afterCompletion(STATUS_ROLLED_BACK)` 호출
+7. `DeliveryStartFailedEvent` 보상 이벤트 발행
+8. 주문 서비스가 이벤트를 수신하여 주문 상태를 `PAID` → `FAILED`로 변경
+
+**결과**:
+- 배송 생성이 실패하여 롤백됨
+- 주문 상태가 `FAILED`로 변경됨
+- 데이터 일관성 유지
+
+**시간 흐름**:
+```
+[주문 서비스] DeliveryRequestedEvent 발행
+    ↓ (비동기)
+[배송 서비스] DeliveryEventListener.onDeliveryRequested 수신
+    ↓
+[배송 서비스] DeliveryManager.startDelivery 시작
+    ↓
+[배송 서비스] TransactionSynchronization 등록
+    ↓
+[배송 서비스] 배송 엔티티 생성 시도...
+    ↓ (예외 발생)
+[배송 서비스] 트랜잭션 롤백
+    ↓
+[배송 서비스] afterCompletion(STATUS_ROLLED_BACK) → DeliveryStartFailedEvent 발행
+    ↓ (비동기)
+[주문 서비스] OrderDeliveryStatusEventListener.onDeliveryStartFailed 수신
+    ↓
+[주문 서비스] 주문 상태 FAILED로 변경
+```
+
+**중요 포인트**:
+- 배송 서비스 레벨에서도 트랜잭션 롤백 감지를 통해 보상 이벤트를 발행
+- 주문 서비스는 배송 실패를 감지하여 주문 상태를 적절히 변경
+- 배송 실패와 주문 실패를 명확히 구분하여 처리
+
 ## 결제 성공 → 배송 생성
 1. `OrderService.completePayment(orderId)`  
    - `TransactionSynchronizationManager.registerSynchronization()`으로 롤백 감지 콜백 등록
@@ -116,11 +160,17 @@
 3. `DeliveryEventListener.onDeliveryRequested` (`@EventListener` + `@Async`)  
    - 별도 스레드에서 이벤트 수신  
    - `deliveryService.startDelivery(...)` 호출로 배송 생성  
+   - `DeliveryService.startDelivery()` → `DeliveryManager.startDelivery()` 호출
+   - `DeliveryManager.startDelivery()`에서 `TransactionSynchronization` 등록하여 롤백 감지
    - 배송 생성이 완료되면 `DeliveryStartedEvent`를 발행
+   - 배송 생성 실패 시 트랜잭션 롤백 후 `DeliveryStartFailedEvent` 발행
 4. `OrderDeliveryStatusEventListener.onDeliveryStarted` (`@Async` + `@EventListener` + `@Transactional`)  
    - 이벤트를 별도 스레드에서 수신한 뒤 **독립적인 새 트랜잭션**으로 주문 상태를 `COMPLETED`로 갱신하고 `OrderStatus` 이력을 저장
    - `@Async`로 인해 별도 스레드에서 실행되므로 원래 트랜잭션(`completePayment`)과 완전히 분리된 독립적인 트랜잭션에서 동작
    - 이벤트 리스너의 트랜잭션 실패는 원래 트랜잭션에 영향을 주지 않음
+5. `OrderDeliveryStatusEventListener.onDeliveryStartFailed` (`@Async` + `@EventListener` + `@Transactional`)  
+   - `DeliveryStartFailedEvent`를 수신하여 주문 상태를 `FAILED`로 변경
+   - 배송 생성 실패에 대한 보상 처리
 
 ## 결제 실패 → 배송 취소
 1. `OrderService.failPayment(orderId)`  
@@ -133,7 +183,7 @@
    - 별도 스레드에서 이벤트 수신  
    - `deliveryService.cancel(orderId)` 호출 (실패 시 경고 로그만 남김)
 
-## 트랜잭션 롤백 → 보상 이벤트
+## 주문 서비스 트랜잭션 롤백 → 보상 이벤트
 1. `OrderService.completePayment(orderId)` 실행 중  
    - `TransactionSynchronizationManager.registerSynchronization()`으로 롤백 감지 콜백 등록  
    - 주문 상태를 `PAID`로 기록  
@@ -148,6 +198,19 @@
    - 별도 스레드에서 이벤트 수신  
    - `deliveryService.cancel(orderId)` 호출로 배송 취소 처리
 
+## 배송 서비스 트랜잭션 롤백 → 실패 이벤트 발행
+1. `DeliveryManager.startDelivery()` 실행 중  
+   - `TransactionSynchronizationManager.registerSynchronization()`으로 롤백 감지 콜백 등록  
+   - 배송 엔티티 생성 및 저장 시도
+2. 트랜잭션 롤백 발생 시  
+   - `TransactionSynchronization.afterCompletion(STATUS_ROLLED_BACK)` 호출  
+   - `DeliveryStartFailedEvent` 보상 이벤트 발행 (배송 생성 실패를 주문 서비스에 알림)
+3. `ApplicationEventPublisher.publishEvent(DeliveryStartFailedEvent)`  
+   - 동기적으로 이벤트 발행 (롤백 콜백 내에서 실행되므로 트랜잭션 종료 후)
+4. `OrderDeliveryStatusEventListener.onDeliveryStartFailed` (`@Async` + `@EventListener` + `@Transactional`)  
+   - 별도 스레드에서 이벤트 수신  
+   - 주문 상태를 `FAILED`로 변경하여 배송 실패를 반영
+
 ## 기타 동기 호출
 - 주문 취소(배송 전)나 반송 처리 등은 여전히 `DeliveryClient`/`PaymentClient`를 통해 동기로 호출합니다.  
 - 배송에서 반송 완료를 주문에 알릴 때는 `DeliveryOrderClient`가 Feign 기반으로 `OrderService.deliveryReturnCompleted`를 호출합니다.
@@ -156,7 +219,10 @@
 - `OrderDeliveryIntegrationTest`  
   - `completePayment_publishDeliveryRequestedEvent`: 배송 생성 이벤트 전달과 `DeliveryStartedEvent` 수신 후 주문 상태가 `COMPLETED`로 바뀌는지 검증  
   - `failPayment_publishDeliveryCancellationEvent`: 배송 취소 이벤트 전달을 검증  
-  - `rollbackDuringCompletePayment_publishesCompensationEvent`: 트랜잭션 롤백 시 보상 이벤트(`DeliveryCancellationRequestedEvent`)가 발행되어 배송 취소가 호출되는지 검증
+  - `rollbackDuringCompletePayment_publishesCompensationEvent`: 주문 서비스 트랜잭션 롤백 시 보상 이벤트(`DeliveryCancellationRequestedEvent`)가 발행되어 배송 취소가 호출되는지 검증
+- `DeliveryManagerRollbackTest`  
+  - 배송 서비스 트랜잭션 롤백 시 `DeliveryStartFailedEvent`가 발행되는지 검증  
+  - 정상 실행 시에는 `DeliveryStartFailedEvent`가 발행되지 않음을 검증
 - `OrderServiceTest`  
   - 이벤트 추상화(`DeliveryEventPublisherInterface`)를 모킹하여 결제 성공/실패 시 올바른 이벤트가 발행되는지 확인  
   - `completePayment_success` 테스트에서 주문 상태가 `PAID`로 저장되는지 추가 검증하고, `failPayment_success` 테스트에 `publishDeliveryCancellationRequested` 검증을 추가하여 이벤트 발행이 실제로 호출되는지 명시적으로 확인  
