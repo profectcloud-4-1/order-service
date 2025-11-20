@@ -147,7 +147,7 @@ public class DeliveryManager {
         delivery.setSenderAddress(this.deliveryAddressMapper.toDomainOfSender(deliveryAddressEntity));
         delivery.setReceiverAddress(this.deliveryAddressMapper.toDomainOfReceiver(deliveryAddressEntity));
 
-        // insert step history
+        // insert step history/
         DeliveryStepHistoryEntity stepHistoryEntity = DeliveryStepHistoryEntity.builder()
             .deliveryId(deliveryId)
             .stepType(DeliveryStepType.INIT.getCode())
