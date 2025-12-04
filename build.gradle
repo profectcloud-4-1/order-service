@@ -37,6 +37,12 @@ jacoco {
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
+    // 테스트 출력을 콘솔에 표시
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+        exceptionFormat "full"
+    }
 }
 
 jacocoTestReport {
@@ -104,6 +110,10 @@ dependencies {
 
     //.env
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+	//kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
 }
 
 dependencyManagement {
@@ -114,4 +124,10 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	// 테스트 출력을 콘솔에 표시
+	testLogging {
+		events "passed", "skipped", "failed"
+		showStandardStreams = true
+		exceptionFormat "full"
+	}
 }

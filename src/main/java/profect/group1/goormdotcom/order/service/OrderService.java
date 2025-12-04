@@ -21,7 +21,10 @@ import java.time.Instant;
 import profect.group1.goormdotcom.order.event.DeliveryCancellationRequestedEvent;
 import profect.group1.goormdotcom.order.event.DeliveryEventPublisherInterface;
 import profect.group1.goormdotcom.order.event.DeliveryRequestedEvent;
+import profect.group1.goormdotcom.order.event.Stock.StockRollbackRequestedEvent;
 import profect.group1.goormdotcom.order.infrastructure.client.StockClient;
+import profect.group1.goormdotcom.kafka.OrderProducer;
+import profect.group1.goormdotcom.kafka.DeliveryProducer;
 import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderItemDto;
 import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderRequestDto;
 import profect.group1.goormdotcom.order.domain.Order;
@@ -59,6 +62,10 @@ public class OrderService {
     private final DeliveryClient deliveryClient;
     private final DeliveryEventPublisherInterface deliveryEventPublisher;
 
+    //Kafka Producer
+    private final OrderProducer orderProducer;
+    private final DeliveryProducer deliveryProducer;
+
     // @Value("${features.external-call.stock-check:true}")
     // private Boolean stockCheckEnabled;
 
@@ -71,7 +78,7 @@ public class OrderService {
     // @PersistenceContext
     // private EntityManager em;
        //상태 이력 추가
-    private void appendOrderStatus(UUID orderId, OrderStatus status){   
+    public void appendOrderStatus(UUID orderId, OrderStatus status){   
         OrderEntity orderEntity = findOrderOrThrow(orderId);
         orderEntity.updateStatus(status);
         orderStatusRepository.save(OrderStatusEntity.builder()
@@ -177,27 +184,16 @@ public class OrderService {
         //     log.warn("[DELIVERY] 배달 생성 실패 - 주문은 결제 완료로 유지: {}", e.getMessage());
         //     //TODO: 실패 건을 별도 테이블/큐에 적재하여 시도
         // }
-        
-        // 1. TransactionSynchronization 등록 (롤백 감지만)
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCompletion(int status) {
-                    if (status == STATUS_ROLLED_BACK) { //STATUS_ROLLED_BACK: 트랜잭션 롤백 상태(TransactionSynchronization 인터페이스 안에 상수로 정의되어 있음)
-                        log.warn("결제 완료 처리 롤백 감지 - 배송 취소 보상 이벤트 발행: orderId={}", orderId);
-                        deliveryEventPublisher.publishDeliveryCancellationRequested(
-                            new DeliveryCancellationRequestedEvent(orderId, Instant.now())
-                        );
-                    }
-                }
-            });
-        }
 
         // 2. 주문 상태를 결제 완료로 갱신 (배송 시작 이벤트 수신 시 COMPLETED 로 전환)
         appendOrderStatus(orderId, OrderStatus.PAID);
 
         // 3. 배송 요청 이벤트 생성 및 즉시 발행 (트랜잭션 커밋 전!)
-        DeliveryRequestedEvent event = new DeliveryRequestedEvent(
+        // Spring ApplicationEventPublisher로 발행 (내부 이벤트)
+        // deliveryEventPublisher.publishDeliveryRequested(event);
+        
+        // Kafka로 발행 (외부 서비스와 통신)
+        OrderProducer.send("delivery-service-topic", new DeliveryRequestedEvent(
             orderId,
             addressEntity.getCustomerId(),
             addressEntity.getAddress(),
@@ -207,8 +203,8 @@ public class OrderService {
             addressEntity.getName(),
             addressEntity.getDeliveryMemo(),
             Instant.now()
-        );
-        deliveryEventPublisher.publishDeliveryRequested(event);
+        ));
+        
         log.info("배송 요청 이벤트 발행 완료: orderId={}", orderId);
         return orderMapper.toDomain(orderEntity);
     }
@@ -221,33 +217,30 @@ public class OrderService {
 
         List<OrderProductEntity> products = orderProductRepository.findByOrderId(orderId);
 
-        //재고 원복 요청 바디 구성
-        StockAdjustmentRequestDto req = new StockAdjustmentRequestDto(
-                products.stream()
-                        .map(p -> new StockAdjustmentRequestItemDto(
-                                p.getProductId(),
-                                p.getQuantity()   //주문 시 차감했던 수량
-                        ))
-                        .toList()
+        //재고 원복 요청 이벤트 구성
+        List<StockRollbackRequestedEvent.StockItem> stockItems = products.stream()
+                .map(p -> new StockRollbackRequestedEvent.StockItem(
+                        p.getProductId(),
+                        p.getQuantity()   //주문 시 차감했던 수량
+                ))
+                .toList();
+
+        StockRollbackRequestedEvent event = new StockRollbackRequestedEvent(
+                orderId,
+                stockItems,
+                Instant.now()
         );
 
-        ApiResponse<StockAdjustmentResponseDto> stockResponse = stockClient.increaseStock(req);
-
-        if (stockResponse == null
-                || stockResponse.getResult() == null
-                || !stockResponse.getResult().status()) {
-            log.error("재고 복구 실패: orderId={}, productIds={}",
-                    orderId, products.stream().map(OrderProductEntity::getProductId).toList());
-            throw new IllegalStateException("재고 복구에 실패했습니다.");
-        }
+        // Kafka로 재고 롤백 이벤트 발행
+        orderProducer.send("stock-service-topic", event);
 
         log.info("재고 복구 완료: orderId={}", orderId);
 
         //TODO:히스토리저장
         appendOrderStatus(orderId, OrderStatus.FAILED);
         // 배송 취소 이벤트 발행 (배송이 이미 생성된 경우를 대비) ->> 나중 대비 지금 사용 X
-        deliveryEventPublisher.publishDeliveryCancellationRequested(new DeliveryCancellationRequestedEvent(orderId, Instant.now()));
-        log.info("배송 취소 이벤트 발행 완료: orderId={}", orderId);
+        // deliveryEventPublisher.publishDeliveryCancellationRequested(new DeliveryCancellationRequestedEvent(orderId, Instant.now()));
+        // log.info("배송 취소 이벤트 발행 완료: orderId={}", orderId);
         return orderMapper.toDomain(orderEntity);
     }
 
@@ -383,6 +376,8 @@ public class OrderService {
 
         orderRepository.save(order);
     }
+
+    // 부하 테스트용 주문 생성
     @Transactional
     public Order createOrderForLoadTest() {
         

@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.order.event;
+package profect.group1.goormdotcom.order.event.Delivery;
 
 import java.time.Instant;
 import java.util.UUID;

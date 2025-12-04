@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.order.event;
+package profect.group1.goormdotcom.order.event.Delivery;
 
 /**
  * 주문 서비스에서 배송 관련 이벤트를 발행하기 위한 추상화.

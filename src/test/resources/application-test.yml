@@ -27,6 +27,26 @@ spring:
           default:
             connectTimeout: 1000
             readTimeout: 1000
+  
+  # 실제 Docker Kafka 클러스터 연결 설정
+  # docker-compose로 실행 중인 Kafka 브로커에 연결
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092,localhost:9093,localhost:9094}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+    sasl.username: ${KAFKA_SASL_USERNAME}
+    sasl.password: ${KAFKA_SASL_PASSWORD}
+    consumer:
+      group-id: test-consumer-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
 
 management:
   endpoints:
@@ -56,6 +76,8 @@ service:
     url: http://localhost/mock-delivery
   stock:
     url: http://localhost/mock-stock
+
+  # Kafka 설정은 테스트 코드에서 EmbeddedKafka로 자동 설정됨
 
 logging:
   level:
