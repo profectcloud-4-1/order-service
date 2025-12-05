@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import profect.group1.goormdotcom.delivery.event.DeliveryStartFailedEvent;
-import profect.group1.goormdotcom.delivery.event.DeliveryStartedEvent;
-import profect.group1.goormdotcom.order.event.DeliveryRequestedEvent;
+import profect.group1.goormdotcom.kafka.event.DeliveryStartFailedEvent;
+import profect.group1.goormdotcom.kafka.event.DeliveryStartedEvent;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryRequestedEvent;
 
 @Slf4j
 @Component

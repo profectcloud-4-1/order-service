@@ -11,13 +11,4 @@ spring:
       hibernate:
         default_batch_fetch_size: 200
         format_sql: true
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-    producer:
-      properties:
-        # MSK 보안 설정 (프로덕션 환경)
-        # security.protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
-        # sasl.mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-512}
-        # sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG}
-        # sasl.client.callback.handler.class: org.apache.kafka.common.security.scram.ScramLoginCallbackHandler
-        # ssl.endpoint.identification.algorithm: https
+

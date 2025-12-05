@@ -13,9 +13,9 @@ import profect.group1.goormdotcom.order.controller.external.v1.dto.OrderRequestD
 import profect.group1.goormdotcom.order.domain.Order;
 import profect.group1.goormdotcom.order.domain.enums.OrderStatus;
 import profect.group1.goormdotcom.order.domain.mapper.OrderMapper;
-import profect.group1.goormdotcom.order.event.DeliveryEventPublisherInterface;
-import profect.group1.goormdotcom.order.event.DeliveryCancellationRequestedEvent;
-import profect.group1.goormdotcom.order.event.DeliveryRequestedEvent;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryEventPublisherInterface;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryCancellationRequestedEvent;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryRequestedEvent;
 import profect.group1.goormdotcom.order.infrastructure.client.DeliveryClient;
 import profect.group1.goormdotcom.order.infrastructure.client.PaymentClient;
 import profect.group1.goormdotcom.order.infrastructure.client.StockClient;

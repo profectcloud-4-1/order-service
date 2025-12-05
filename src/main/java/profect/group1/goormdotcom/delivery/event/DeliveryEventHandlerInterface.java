@@ -1,7 +1,7 @@
 package profect.group1.goormdotcom.delivery.event;
 
-import profect.group1.goormdotcom.order.event.DeliveryCancellationRequestedEvent;
-import profect.group1.goormdotcom.order.event.DeliveryRequestedEvent;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryCancellationRequestedEvent;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryRequestedEvent;
 
 /**
  * 배송 서비스가 처리해야 하는 주문발 배송 이벤트 계약.

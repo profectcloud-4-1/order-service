@@ -18,9 +18,9 @@ import profect.group1.goormdotcom.order.infrastructure.client.dto.StockAdjustmen
 import profect.group1.goormdotcom.order.infrastructure.client.dto.StockAdjustmentRequestItemDto;
 import profect.group1.goormdotcom.order.infrastructure.client.dto.StockAdjustmentResponseDto;
 import java.time.Instant;
-import profect.group1.goormdotcom.order.event.DeliveryCancellationRequestedEvent;
-import profect.group1.goormdotcom.order.event.DeliveryEventPublisherInterface;
-import profect.group1.goormdotcom.order.event.DeliveryRequestedEvent;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryCancellationRequestedEvent;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryEventPublisherInterface;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryRequestedEvent;
 import profect.group1.goormdotcom.order.event.Stock.StockRollbackRequestedEvent;
 import profect.group1.goormdotcom.order.infrastructure.client.StockClient;
 import profect.group1.goormdotcom.kafka.OrderProducer;
@@ -193,7 +193,7 @@ public class OrderService {
         // deliveryEventPublisher.publishDeliveryRequested(event);
         
         // Kafka로 발행 (외부 서비스와 통신)
-        OrderProducer.send("delivery-service-topic", new DeliveryRequestedEvent(
+        orderProducer.send("delivery-service-topic", new DeliveryRequestedEvent(
             orderId,
             addressEntity.getCustomerId(),
             addressEntity.getAddress(),

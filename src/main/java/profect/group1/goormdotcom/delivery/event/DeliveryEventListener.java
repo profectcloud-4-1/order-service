@@ -11,8 +11,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import profect.group1.goormdotcom.delivery.domain.Delivery;
 import profect.group1.goormdotcom.delivery.service.DeliveryService;
-import profect.group1.goormdotcom.order.event.DeliveryCancellationRequestedEvent;
-import profect.group1.goormdotcom.order.event.DeliveryRequestedEvent;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryCancellationRequestedEvent;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryRequestedEvent;
 
 /**
  * 주문 서비스에서 발행하는 배송 관련 이벤트를 처리한다.

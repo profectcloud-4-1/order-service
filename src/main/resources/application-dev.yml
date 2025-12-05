@@ -11,3 +11,8 @@ spring:
       hibernate:
         default_batch_fetch_size: 200
         format_sql: true
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console

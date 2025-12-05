@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import profect.group1.goormdotcom.order.service.OrderService;
 import profect.group1.goormdotcom.order.event.Stock.StockRollbackCompletedEvent;
+import profect.group1.goormdotcom.order.event.Stock.StockRollbackFailedEvent;
+import profect.group1.goormdotcom.kafka.event.DeliveryStartedEvent;
+import profect.group1.goormdotcom.kafka.event.DeliveryStartFailedEvent;
 import profect.group1.goormdotcom.order.domain.enums.OrderStatus;
 
 @Slf4j
@@ -38,7 +41,7 @@ public class OrderConsumer {
             throw new RuntimeException("이벤트 처리 실패", e);
         }
     }
-    @kafkaListener(topics = "order-service-topic", groupId = "order-service-delivery-group")
+    @KafkaListener(topics = "order-service-topic", groupId = "order-service-delivery-group")
     @Transactional
     public void handleStockRollbackFailedEvent(String message){
         try{

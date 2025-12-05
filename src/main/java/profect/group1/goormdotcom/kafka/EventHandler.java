@@ -7,7 +7,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import profect.group1.goormdotcom.kafka.StockProducer;
+import profect.group1.goormdotcom.kafka.event.DeliveryStartedEvent;
+import profect.group1.goormdotcom.kafka.event.DeliveryStartFailedEvent;
 
 @Slf4j
 @Component

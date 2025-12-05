@@ -6,7 +6,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import profect.group1.goormdotcom.delivery.event.DeliveryStartedEvent;
+import profect.group1.goormdotcom.order.event.Delivery.DeliveryRequestedEvent;
+import profect.group1.goormdotcom.delivery.service.DeliveryService;
 
 /**
  * 배송 서비스에서 발행한 이벤트를 수신하는 Kafka Consumer
@@ -17,6 +18,7 @@ import profect.group1.goormdotcom.delivery.event.DeliveryStartedEvent;
 @RequiredArgsConstructor
 public class DeliveryConsumer {
     private final ObjectMapper objectMapper;
+    private final DeliveryService deliveryService;
 
     @KafkaListener(topics = "delivery-service-topic", groupId = "order-service-delivery-group")
     public void DeliveryRequestedEvent(String message) {
